@@ -6,7 +6,7 @@
 rawdata/*
 !rawdata/README.md
 derivatives/*
-!rawdata/README.md
+!derivatives/README.md
 
 # mac annoyance
 .DS_Store
