@@ -284,6 +284,25 @@ df$Group <- ifelse(is.na(df$Group) & df$RID %in% remainder.bl$RID,
                    'RemainderLongitudinal',
                    df$Group)
 
+# === Generate subject list =========
+
+# this code creates the subject-ids file for ADNI
+# NOTE: overwriting the subject lists in the subject_ids folder
+#       may result in a different set of subjects being analyzed!
+
+# sub.ids <- select(df, RID, VISCODE, Group)
+# write.csv(sub.ids, 'adni_subjects.csv', row.names = F)
+
+# === Apply subject list ==========
+
+# this code tries to make sure the data created here
+# has the same subjects used in the original paper
+
+original.subs <- read.csv('../subject_ids/adni_subjects.csv')
+current.subs <- select(df, -Group) %>%
+  mutate(VISCODE=as.character(VISCODE))
+df.original.subs <- left_join(original.subs, current.subs, by=c('RID', 'VISCODE'))
+
 # === Save ===========
 
-write.csv(df, '../derivatives/main_data_ADNI.csv', quote=F, na='', row.names=F)
+write.csv(df.original.subs, '../derivatives/main_data_ADNI.csv', quote=F, na='', row.names=F)
