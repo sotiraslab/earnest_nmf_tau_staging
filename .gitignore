@@ -2,9 +2,11 @@
 # Added by me
 # # # # # # # # # #
 
-# rawdata
+# removing data
 rawdata/*
-!rawdata/readme.txt
+!rawdata/README.md
+derivatives/*
+!rawdata/README.md
 
 # mac annoyance
 .DS_Store
