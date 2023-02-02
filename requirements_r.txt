@@ -1,4 +1,6 @@
 ADNIMERGE
+dplyr
 lubridate
 this.path
+tidyr
 tidyverse

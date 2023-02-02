@@ -14,6 +14,11 @@ sh(library(tidyverse))
 
 setwd(this.dir())
 
+# === Files needed ========
+
+PATH.PTODEMOG.CSV <- '../../rawdata/PTDEMOG.csv'
+PATH.SUBJECTS.ADNI <- '../../subject_ids/adni_subjects.csv'
+
 # === load the tau data ==========
 
 tau.adni <- ucberkeleyav1451
@@ -180,7 +185,7 @@ df.age$Age <- as.numeric(df.age$AgeBL + df.age$TimeTauSinceBL)
 missing.age <- df.age[is.na(df.age$Age), ]
 replace.rids <- missing.age$RID
 
-demog.csv <- read.csv('../rawdata/PTDEMOG.csv') %>%
+demog.csv <- read.csv(PATH.PTODEMOG.CSV) %>%
   select(RID, PTDOBMM, PTDOBYY) %>%
   mutate(DOB=as.POSIXct(paste(PTDOBMM, 15, PTDOBYY, sep='/'), format='%m/%d/%Y')) %>%
   filter(RID %in% replace.rids) %>%
@@ -199,7 +204,7 @@ df <- df.age
 df$Gender <- as.character(df$Gender)
 gender.missing <- df[is.na(df$Gender), ]
 
-demog.csv <- read.csv('../rawdata/PTDEMOG.csv') %>%
+demog.csv <- read.csv(PATH.PTODEMOG.CSV) %>%
   select(RID, PTGENDER) %>%
   filter(RID %in% gender.missing$RID) %>%
   mutate(Gender.Missing=recode(PTGENDER, `1`='Male', `2`='Female')) %>%
@@ -298,11 +303,11 @@ df$Group <- ifelse(is.na(df$Group) & df$RID %in% remainder.bl$RID,
 # this code tries to make sure the data created here
 # has the same subjects used in the original paper
 
-original.subs <- read.csv('../subject_ids/adni_subjects.csv')
+original.subs <- read.csv(PATH.SUBJECTS.ADNI)
 current.subs <- select(df, -Group) %>%
   mutate(VISCODE=as.character(VISCODE))
 df.original.subs <- left_join(original.subs, current.subs, by=c('RID', 'VISCODE'))
 
 # === Save ===========
 
-write.csv(df.original.subs, '../derivatives/main_data_ADNI.csv', quote=F, na='', row.names=F)
+write.csv(df.original.subs, '../../derivatives/adni/main_data.csv', quote=F, na='', row.names=F)
