@@ -138,19 +138,33 @@ df <- left_join(df, mmse, by='Subject') %>%
   group_by(Subject) %>%
   slice_min(TauMMSEDiff, with_ties = F)
 
+# === Add regional tau =========
+
+tau.rois <- read.csv('../../rawdata/oasis_flortaucipir.csv')
+
 # === Select amyloid positive df ==========
 
 df.amyloidpos <- df[! is.na(df$AnyAmyloidPositive) & df$AnyAmyloidPositive, ]
 table(df.amyloidpos$CDR, useNA = 'always')
 
-# === Plots ===========
+# corpus callosum & cerebllum are omitted to match ADNI
+pat.inc <- "PET_fSUVR_[LR]_CTX_.*"
+pat.exc <- "CRPCLM|CBLL"
+cols <- colnames(tau.rois)[grepl(pat.inc, colnames(tau.rois), perl = T) &
+                           ! grepl(pat.exc, colnames(tau.rois), perl = T)]
 
-ggplot(data=df.amyloidpos, aes(x=factor(CDR), y=Age, fill=factor(CDR))) +
-  geom_violin()+
-  geom_boxplot(width=0.1) +
-  theme(legend.position = 'none')
+# ROIS from ADRC have different names than ADNI/ggseg
+# but are ordered the same
+adni.rois <- read.csv('../../derivatives/adni/nmf_regions.csv')
+converter <-  data.frame(ADRC=cols, ADNI=adni.rois$Feature)
 
-# ggsave('~/Desktop/age_cdr_violin.png', width=4, height = 4)
+tau.rois$Subject <- str_extract(tau.rois$PUP_PUPTIMECOURSEDATA.ID, 'OAS\\d+')
+
+# add total cortical mean for a course tau index
+joiner <- tau.rois[, c("Subject", cols, 'PET_fSUVR_TOT_CORTMEAN')]
+colnames(joiner) <- c("Subject", converter$ADNI, 'TotalCtxTauMean')
+
+df <- left_join(df, joiner, by='Subject')
 
 # === Add groups =============
 
