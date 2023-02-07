@@ -2,6 +2,8 @@ ADNIMERGE
 dplyr
 ggplot2
 lubridate
+R.matlab
+stringr
 this.path
 tidyr
 tidyverse
