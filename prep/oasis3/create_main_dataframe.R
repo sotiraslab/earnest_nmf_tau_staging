@@ -12,6 +12,14 @@ sh(library(tidyverse))
 
 setwd(this.dir())
 
+# === Files needed ===========
+
+PATH.FTP <- '../../rawdata/oasis_flortaucipir.csv'
+PATH.CENTILOID <- '../../derivatives/oasis3/manual_centiloid.csv'
+PATH.CLINICAL <- '../../rawdata/OASIS3_data_files/scans/UDSb4-Form_B4__Global_Staging__CDR__Standard_and_Supplemental/resources/csv/files/OASIS3_UDSb4_cdr.csv'
+PATH.DEMO <- '../../rawdata/OASIS3_data_files/scans/demo-demographics/resources/csv/files/OASIS3_demographics.csv'
+PATH.OASIS.SUBS <- '../../subject_ids/oasis_subjects.csv'
+
 # === Load tau ROI data =============
 
 # This contains all the ROI SUVR values extracted from
@@ -20,8 +28,7 @@ setwd(this.dir())
 # for NMF (434).  But need to filter out cases that are
 # amyloid negative.
 
-path <- '../../rawdata/oasis_flortaucipir.csv'
-big.df <- read.csv(path)
+big.df <- read.csv(PATH.FTP)
 
 # extract only the subjects
 adrc_session_to_number <- function(col) {
@@ -41,8 +48,7 @@ df$Session <- adrc_session_to_number(df$PUP_PUPTIMECOURSEDATA.ID)
 # based on the amyloid cortical values
 # see check_centiloid_conversion.R for a little more explanation
 
-path <- '../../derivatives/oasis3/manual_centiloid.csv'
-amyloid.df <- read.csv(path)
+amyloid.df <- read.csv(PATH.CENTILOID)
 
 
 amyloid.df.proc <- amyloid.df %>%
@@ -81,20 +87,12 @@ status <- df.merge %>%
             TauAmyloidDiff = first(TauAmyloidDiff)) %>%
   ungroup()
 
-# report the availability
-cat("Tau subjects/images:", total.tau, '\n')
-cat("With any amyloid imaging:", total.tau - tau.no.amyloid, '\n')
-cat("With contemporaneous amyloid imaging:", total.tau - tau.no.amyloid - no.recent.amyloid, '\n')
-cat("Amyloid+ subjects:", sum(status$AnyAmyloidPositive), '\n')
-cat("Subjects with mixed amyloid status:", sum(status$MixStatus), '\n')
-
 # assign status
 df <- left_join(df, status, by='Subject')
 
 # === Add CDR ==========
 
-path <- '../../rawdata/OASIS3_data_files/scans/UDSb4-Form_B4__Global_Staging__CDR__Standard_and_Supplemental/resources/csv/files/OASIS3_UDSb4_cdr.csv'
-clinical.df <- read.csv(path)
+clinical.df <- read.csv(PATH.CLINICAL)
 
 clinical.df.proc <- clinical.df %>%
   select(OASIS_session_label, CDRTOT, CDRSUM) %>%
@@ -111,8 +109,7 @@ df <- left_join(df, clinical.df.proc, by='Subject') %>%
 
 # === Add Demographics ==========
 
-path <- '../../rawdata/OASIS3_data_files/scans/demo-demographics/resources/csv/files/OASIS3_demographics.csv'
-demo <- read.csv(path)
+demo <- read.csv(PATH.DEMO)
 
 demo.proc <- demo %>%
   select(OASISID, AgeatEntry, AgeatDeath, GENDER, APOE) %>%
@@ -124,8 +121,7 @@ df$Age <- df$AgeatEntry + (df$Session / 365.25)
 
 # === Add MMSE ==========
 
-path <- '../../rawdata/OASIS3_data_files/scans/UDSb4-Form_B4__Global_Staging__CDR__Standard_and_Supplemental/resources/csv/files/OASIS3_UDSb4_cdr.csv'
-mmse <- read.csv(path)
+mmse <- read.csv(PATH.CLINICAL)
 
 mmse <- mmse %>%
   select(OASISID, MMSE, days_to_visit) %>%
@@ -185,7 +181,23 @@ df$Group <- ifelse(is.na(df$Group),
                    'Other',
                    df$Group)
 
+# === Generate subject list =========
+
+# this code creates the subject-ids file for OASIS3
+# NOTE: overwriting the subject lists in the subject_ids folder
+#       may result in a different set of subjects being analyzed!
+
+# sub.ids <- select(df, Subject, Session, Group)
+# write.csv(sub.ids, 'oasis_subjects.csv', row.names = F)
+
+
+# === Apply Subject list =========
+
+original.subs <- read.csv(PATH.OASIS.SUBS)
+current.subs <- select(df, -Group)
+df.original.subs <- left_join(original.subs, current.subs, by=c('Subject', 'Session'))
+
 # === Save ==========
 
-write.csv(df, '../../derivatives/oasis3/main_data.csv', na='', quote=F, row.names = F)
+write.csv(df.original.subs, '../../derivatives/oasis3/main_data.csv', na='', quote=F, row.names = F)
   
