@@ -85,6 +85,24 @@ echo ""
 echo "Success!"
 
 ##########################################################
+# CALL R SCRIPT HELPER
+##########################################################
+
+function callR {
+	SCRIPT=$1
+	COMMAND=(Rscript -e "source('${SCRIPT}', echo=T)")
+
+	echo ""
+	echo "Rscript command:"
+	echo "    ${COMMAND[@]}"
+
+	echo ""
+	echo "********* COMMAND OUTPUT START *********"
+	"${COMMAND[@]}"
+	echo "********* COMMAND OUTPUT END   **********"	
+}	
+
+##########################################################
 # ADNI
 ##########################################################
 
@@ -105,26 +123,22 @@ mkdir -p ${DERIVATIVES_ADNI}
 
 # 1. Create main dataframe
 SCRIPT=${PREP_ADNI}/create_main_dataframe.R
-COMMAND=(Rscript -e "source('${SCRIPT}', echo=T)")
-
 echo ""
-echo "1. Running main dataframe creation:"
-echo "    ${COMMAND[@]}"
+echo "1. Creating main ADNI dataset..."
+callR $SCRIPT
 
+
+# 2. Create NMF matrices
+SCRIPT=${PREP_ADNI}/create_nmf_matrix.R
 echo ""
-echo "********* COMMAND OUTPUT START *********"
-"${COMMAND[@]}"
-echo "********* COMMAND OUTPUT END   **********"
+echo "2. Creating NMF inputs..."
+callR $SCRIPT
 
-# 2. Project NMF
+# 3. Project NMF
 SCRIPT=${PREP_ADNI}/project_adni_8ptc.R
-COMMAND=(Rscript -e "source('${SCRIPT}', echo=T)")
+echo ""
+echo "3. Getting projection onto NMF components..."
+callR $SCRIPT
 
 echo ""
-echo "2. Running projection of data onto NMF components:"
-echo "    ${COMMAND[@]}"
-
-echo ""
-echo "********* COMMAND OUTPUT START *********"
-"${COMMAND[@]}"
-echo "********* COMMAND OUTPUT END   **********"
+echo "Preparing ADNI dataset, complete!"
