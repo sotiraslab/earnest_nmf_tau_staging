@@ -3,9 +3,12 @@ colormap
 dplyr
 ggplot2
 ggseg
+ggsurvfit
 lubridate
 R.matlab
 stringr
+survival
+survminer
 this.path
 tidyr
 tidyverse

@@ -2,7 +2,6 @@
 
 sh <- suppressPackageStartupMessages
 
-sh(library(ggpattern))
 sh(library(lubridate))
 sh(library(this.path))
 sh(library(tidyverse))
@@ -77,4 +76,4 @@ ggsave('oasis_apoe_bar.png', width=4, height=8)
 
 
 # save ========
-write.csv(df, 'oasis_data_with_staging.csv', row.names = F, quote=F, na="")
+write.csv(df.all, 'oasis_data_with_staging.csv', row.names = F, quote=F, na="")
