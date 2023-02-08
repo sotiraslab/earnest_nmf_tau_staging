@@ -112,9 +112,6 @@ DERIVATIVES=${MAIN_DIR}/'derivatives'
 PREP_ADNI=${PREP}/'adni'
 DERIVATIVES_ADNI=${DERIVATIVES}/'adni'
 
-PREP_OASIS=${PREP}/'oasis3'
-DERIVATIVES_OASIS=${DERIVATIVES}/'oasis3'
-
 echo
 echo "ADNI"
 echo "---------------"
@@ -126,7 +123,6 @@ SCRIPT=${PREP_ADNI}/create_main_dataframe.R
 echo ""
 echo "1. Creating main ADNI dataset..."
 callR $SCRIPT
-
 
 # 2. Create NMF matrices
 SCRIPT=${PREP_ADNI}/create_nmf_matrix.R
@@ -142,3 +138,39 @@ callR $SCRIPT
 
 echo ""
 echo "Preparing ADNI dataset, complete!"
+
+##########################################################
+# OASIS3
+##########################################################
+
+PREP_OASIS=${PREP}/'oasis3'
+DERIVATIVES_OASIS=${DERIVATIVES}/'oasis3'
+
+mkdir -p ${DERIVATIVES_OASIS}
+
+# 0. Compute centiloids
+SCRIPT=${PREP_OASIS}/compute_centiloid.R
+echo ""
+echo "1. Creating main ADNI dataset..."
+callR $SCRIPT
+
+# 1. Create main dataframe
+SCRIPT=${PREP_OASIS}/create_main_dataframe.R
+echo ""
+echo "1. Creating main ADNI dataset..."
+callR $SCRIPT
+
+# 2. Create NMF matrices
+SCRIPT=${PREP_OASIS}/create_nmf_matrix.R
+echo ""
+echo "2. Creating NMF inputs..."
+callR $SCRIPT
+
+# 3. Project NMF
+SCRIPT=${PREP_OASIS}/project_adni_8ptc.R
+echo ""
+echo "3. Getting projection onto NMF components..."
+callR $SCRIPT
+
+echo ""
+echo "Preparing OASIS dataset, complete!"
