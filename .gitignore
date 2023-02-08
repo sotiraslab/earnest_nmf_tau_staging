@@ -9,6 +9,9 @@ derivatives/*
 !derivatives/README.md
 figures/*/*.csv
 
+# remove figures created
+figures/*/*.png
+
 # mac annoyance
 .DS_Store
 
