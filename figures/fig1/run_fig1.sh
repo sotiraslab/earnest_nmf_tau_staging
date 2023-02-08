@@ -1,6 +1,11 @@
 #!/bin/bash
 
 echo ""
+echo "----------"
+echo "FIGURE 1"
+echo "----------"
+
+echo ""
 echo "Running reconstruction error plots..."
 python compare_recon_error.py
 echo "Done."
