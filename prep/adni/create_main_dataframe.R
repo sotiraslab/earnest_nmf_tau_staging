@@ -64,43 +64,41 @@ fbb.record$DateAmyloid <- as_datetime(ymd(fbb.record$DateAmyloid))
 fbb.record$AmyloidTracer <- "FBB"
 
 all.amy <- rbind(av45.record, fbb.record)
-df.allamy <- left_join(df, all.amy, by='RID')
-df.allamy$TauAmyloidGap <- difftime(df.allamy$DateTau, df.allamy$DateAmyloid, units='days')
-df.allamy <- drop_na(df.allamy, CompositeSUVR)
+all.amy$Indexer <- 1:nrow(all.amy)
 
-rows <- list()
-c <- 0
-
-for (i in 1:nrow(df)) {
-  cat('Scan', i ,'...\n')
-  row <- df[i, ]
-  row$DateAmyloid <- NA
-  row$CompositeSUVR <- NA
-  row$AmyloidStatus <- NA
-  row$TauAmyloidGap <- NA
-  row$AmyloidTracer <- NA
+amyloid.selector <- function(Indexer, TauAmyloidGap, AmyloidStatus) {
   
-  idx = df[i, 'ScanIndex']
-  slice <- df.allamy[df.allamy$ScanIndex == idx, ]
+  omit1 <- is.na(TauAmyloidGap) 
+  omit2 <- (TauAmyloidGap < -365)
+  mask.omit <- omit1 | omit2 
   
-  if (all(is.na(slice$TauAmyloidGap))) {
-  } else if (min(abs(slice$TauAmyloidGap)) <= 365) {
-    row <- slice[which.min(abs(slice$TauAmyloidGap)), ]
-  } else {
-    amy.before.tau <- slice[slice$TauAmyloidGap > 0, ]
-    if (nrow(amy.before.tau) != 0) {
-      most.recent <- amy.before.tau[which.min(amy.before.tau$TauAmyloidGap), ]
-      if (most.recent[['AmyloidStatus']] == 1) row <- most.recent
-    }
+  if (all(mask.omit)) {
+    return(NA)
   }
   
-  if (! is.null(row)) {
-    rows[[i]] <- row
+  Indexer <- Indexer[ ! mask.omit]
+  TauAmyloidGap <- TauAmyloidGap[! mask.omit]
+  AmyloidStatus <- AmyloidStatus[! mask.omit]
+  
+  closest.scan.index <- which.min(abs(TauAmyloidGap))
+  
+  if (abs(TauAmyloidGap[closest.scan.index]) <= 365 | AmyloidStatus[closest.scan.index] == 1) {
+    return (Indexer[which.min(abs(TauAmyloidGap))])
+  } else {
+    return (NA)
   }
 }
 
-C <- data.frame(do.call(rbind.data.frame, rows))
-df <- C
+df.allamy <- left_join(df, all.amy, by='RID') %>%
+  mutate(TauAmyloidGap=as.numeric(difftime(DateTau, DateAmyloid, units='days'))) %>%
+  group_by(ScanIndex) %>%
+  summarise(Indexer=amyloid.selector(Indexer, TauAmyloidGap, AmyloidStatus)) %>%
+  ungroup() %>%
+  left_join(all.amy, by='Indexer') %>%
+  select(-RID) 
+
+df <- left_join(df, df.allamy, by='ScanIndex') %>%
+  mutate(TauAmyloidGap=as.numeric(difftime(DateTau, DateAmyloid, units='days')))
 
 # ==== Add centiloids =======
 
