@@ -2,6 +2,7 @@ ADNIMERGE
 colormap
 dplyr
 ggplot2
+ggseg
 lubridate
 R.matlab
 stringr
