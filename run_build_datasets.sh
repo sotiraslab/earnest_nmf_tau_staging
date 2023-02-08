@@ -43,11 +43,12 @@ done
 
 MAIN_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-if [[ ! -f ${MAIN_DIR}/run.sh ]]
+LOOKSCRIPT='run_build_datasets.sh'
+if [[ ! -f ${MAIN_DIR}/${LOOKSCRIPT} ]]
 then
 	# default to trying current working directory
 	echo ""
-	echo "Warning: Cannot find main 'run.sh' script at ${MAIN_DIR}."
+	echo "Warning: Cannot find main '${LOOKSCRIPT}' script at ${MAIN_DIR}."
 	echo "Setting to current working directory (PWD): ${PWD}"
 	MAIN_DIR=$PWD
 fi
@@ -88,12 +89,19 @@ echo "Success!"
 ##########################################################
 
 PREP=${MAIN_DIR}/'prep'
+DERIVATIVES=${MAIN_DIR}/'derivatives'
+
 PREP_ADNI=${PREP}/'adni'
+DERIVATIVES_ADNI=${DERIVATIVES}/'adni'
+
 PREP_OASIS=${PREP}/'oasis3'
+DERIVATIVES_OASIS=${DERIVATIVES}/'oasis3'
 
 echo
 echo "ADNI"
 echo "---------------"
+
+mkdir -p ${DERIVATIVES_ADNI}
 
 # 1. Create main dataframe
 SCRIPT=${PREP_ADNI}/create_main_dataframe.R
