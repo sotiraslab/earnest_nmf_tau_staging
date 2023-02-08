@@ -6,6 +6,7 @@ sh(library(colormap))
 sh(library(ggseg))
 sh(library(R.matlab))
 sh(library(this.path))
+sh(library(tidyverse))
 
 # === Set working directory =======
 
