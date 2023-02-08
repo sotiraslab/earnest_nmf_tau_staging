@@ -53,3 +53,7 @@ drop.rois <- df %>%
 
 outpath <- '../../derivatives/adni/main_data_with_8ptc_no_rois.csv'
 write.csv(drop.rois, outpath, na='', quote=F, row.names = F)
+
+# component names, as ordered by NMF output
+temp <- data.frame(Component=gsub('Cmp.', '', comp.names))
+write.csv(temp, '../../derivatives/adni/names_8ptc.csv', row.names = F)

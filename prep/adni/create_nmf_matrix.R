@@ -54,3 +54,16 @@ for (i in 1:N) {
 splits <- as.data.frame(splits)
 outpath <- '../../derivatives/adni/reproducibility_split_indices.csv'
 write.table(splits, outpath, row.names = F, col.names = F, sep=',')
+
+# === Create ordered region list parsed for GGSEG ========
+
+
+regions.df <- read.csv(outfeatures)
+REGION.LABELS <- regions.df$Feature
+chrs <- nchar(REGION.LABELS)
+REGION.LABELS.GGSEG = tolower(substr(REGION.LABELS, 5, chrs-5))
+
+# save these converted labels for future use
+temp <- data.frame(label=REGION.LABELS.GGSEG)
+outpath <- file.path('../../derivatives/adni/nmf_regions_ggseg.csv')
+write.csv(temp, outpath, row.names=F)

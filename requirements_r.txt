@@ -1,4 +1,5 @@
 ADNIMERGE
+colormap
 dplyr
 ggplot2
 lubridate
