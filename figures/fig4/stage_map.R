@@ -44,6 +44,7 @@ p <- ggplot(plot.data) +
              color='black',
              linewidth=4) +
   theme_void() +
+  theme(text = element_text(size=20)) +
   scale_fill_manual(values=colors)
 p
 
