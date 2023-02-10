@@ -1,5 +1,9 @@
+abagen
 matplotlib
 natsort
+neuromaps
+nibabel
 numpy
 pandas
 scipy
+statsmodels

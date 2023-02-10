@@ -12,6 +12,9 @@ figures/*/*.csv
 # remove figures created
 figures/*/*.png
 
+# remove table data
+tables/*/*.csv
+
 # rplots
 */*/Rplots.pdf
 

@@ -69,26 +69,7 @@ df$CentiloidBinned <- cut(df$Centiloid, c(-Inf, 40, 60, 80, 100, Inf),
 stacked.barplot(df, 'CentiloidBinned', 'PTCStage', colors=stage.colors) + xlab('Centiloid')
 ggsave('adni_centiloid_bar.png', width=6, height=8) 
 
-# === Add APOE genotype ======
-
-a1 <- select(apoeres, RID, APGEN1, APGEN2)
-a2 <- select(apoego2, RID, APGEN1, APGEN2)
-a3 <- select(apoe3, RID, APGEN1, APGEN2)
-
-all.apoe <- do.call(rbind, list(a1, a2, a3))
-
-all.apoe <- all.apoe %>%
-  mutate(APOEGenotype=paste(
-    pmin(all.apoe$APGEN1, all.apoe$APGEN2),
-    pmax(all.apoe$APGEN1, all.apoe$APGEN2),
-    sep='/')
-    )
-
-df <- left_join(df, all.apoe, by='RID')
-
-# === plot APOE =========
-
-df$HasE4 <- ifelse(is.na(df$APOEGenotype), NA, grepl('4', df$APOEGenotype))
+# === APOE =========
 
 stacked.barplot(df, 'HasE4', 'PTCStage', levels = c(T, F), colors=stage.colors) +
   xlab('APOE') +
