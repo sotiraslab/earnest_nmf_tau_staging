@@ -11,7 +11,9 @@ figures/*/*.csv
 
 # remove figures created
 figures/*/*.png
-figures/*/Rplots.pdf
+
+# rplots
+*/*/Rplots.pdf
 
 # mac annoyance
 .DS_Store
