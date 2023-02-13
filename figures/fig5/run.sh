@@ -2,7 +2,7 @@
 
 echo ""
 echo "----------"
-echo "FIGURE 5"
+echo "LONGITUDINAL STAGING"
 echo "----------"
 
 echo ""

@@ -16,7 +16,7 @@ This repository contains public code for Tom's project (applying non-negative ma
 Once you have completed the setup steps, you can try using some of the provided shell scripts to reproduce analyses & figures locally:
 
 - `run_build_datasets.sh` should be run first.  This will create several tables in the `derivatives` folder for both the ADNI & OASIS3 datasets.
-- `run_all_figures.sh` will iteratively run the plot creation scripts in each figure folder (`figure/fig#`).  You can alternatively run any individual figure by entering a figure folder and running the script `run_fig#.sh`.  Each script creates tables and graphs within their respective folder.  There are a few specific notes about running the figures:
+- `run_all_figures.sh` will iteratively run the plot creation scripts in each figure folder (`figure/fig#`).  You can alternatively run any individual figure by entering a figure folder and running the script `run.sh`.  Each script creates tables and graphs within their respective folder.  There are a few specific notes about running the figures:
   - Figures can only be run after the outputs created by `run_build_datasets.sh` have been generated.
   - Several figures can only be run after previous figures have been run (e.g., the longitudinal staging in Figure 4 can only be created after the cross-sectional staging in Figure 2).
   - Figure 6 can only be run after the gene-expression correlations have been run for Table 2 (`tables/table2`).

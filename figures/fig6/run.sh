@@ -2,7 +2,7 @@
 
 echo ""
 echo "----------"
-echo "FIGURE 6"
+echo "GENE EXPRESSION"
 echo "----------"
 
 echo ""

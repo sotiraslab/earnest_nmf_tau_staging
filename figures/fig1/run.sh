@@ -2,7 +2,7 @@
 
 echo ""
 echo "----------"
-echo "FIGURE 1"
+echo "MODEL SELECTION"
 echo "----------"
 
 echo ""

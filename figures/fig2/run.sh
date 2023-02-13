@@ -2,7 +2,7 @@
 
 echo ""
 echo "----------"
-echo "FIGURE 2"
+echo "PTC VISUALIZATION"
 echo "----------"
 
 echo ""
