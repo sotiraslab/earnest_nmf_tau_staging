@@ -15,6 +15,10 @@ figures/*/*.png
 # remove table data
 tables/*/*.csv
 
+# supplement
+supplement/*/*.csv
+supplement/*/*.png
+
 # rplots
 */*/Rplots.pdf
 
