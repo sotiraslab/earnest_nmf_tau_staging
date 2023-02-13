@@ -2,10 +2,23 @@
 
 echo ""
 echo "----------"
-echo "PTC VISUALIZATION"
+echo "W-Scoring"
 echo "----------"
 
 echo ""
-echo "Running creation of component images..."
-Rscript -e "source('create_8ptc_ggseg.R', echo=T)"
+echo "Running W-scoring & heatmaps..."
+SCRIPT="wscore_heatmaps.R"
+Rscript -e "source('${SCRIPT}', echo=T)"
+echo "Done."
+
+echo ""
+echo "Running winner take all image..."
+SCRIPT="winner_take_all.R"
+Rscript -e "source('${SCRIPT}', echo=T)"
+echo "Done."
+
+echo ""
+echo "Running W-score brain maps..."
+SCRIPT="wscore_brainmaps.R"
+Rscript -e "source('${SCRIPT}', echo=T)"
 echo "Done."

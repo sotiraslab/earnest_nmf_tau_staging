@@ -2,20 +2,10 @@
 
 echo ""
 echo "----------"
-echo "MODEL SELECTION"
+echo "PTC VISUALIZATION"
 echo "----------"
 
 echo ""
-echo "Running reconstruction error plots..."
-python compare_recon_error.py
-echo "Done."
-
-echo ""
-echo "Running intrasample reproducibility plots..."
-python intrasample_reproducibility.py
-echo "Done."
-
-echo ""
-echo "Running intrasample reproducibility plots..."
-python intersample_reproducibility.py
+echo "Running creation of component images..."
+Rscript -e "source('create_8ptc_ggseg.R', echo=T)"
 echo "Done."
