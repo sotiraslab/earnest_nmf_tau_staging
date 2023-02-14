@@ -12,8 +12,8 @@ setwd(this.dir())
 
 # === Required files =========
 
-PATH.OASIS.WSCORES <- '../fig3/oasis_data_with_wscores.csv'
-PATH.ADNI.ORDER <- '../fig3/adni_wscore_stage_order.csv'
+PATH.OASIS.WSCORES <- '../fig2/oasis_data_with_wscores.csv'
+PATH.ADNI.ORDER <- '../fig2/adni_wscore_stage_order.csv'
 PATH.SCRIPT.BARPLOT <- '../../scripts/stacked_barplot.R'
 PATH.SCRIPT.STAGING <- '../../scripts/stage_assigner.R'
 
@@ -55,8 +55,11 @@ source(PATH.SCRIPT.BARPLOT)
 
 df.train$CDR <- factor(df.train$CDR, labels=c('0.0', '0.5', '1.0+'))
 
-stacked.barplot(df.train, 'CDR', 'PTCStage', colors=stage.colors)
-ggsave('oasis_cdr_bar.png', width=4, height=8)
+cdr.colors = c('0.0'='white', '0.5'='#0072B2', '1.0+'='#CC79A7')
+
+stacked.barplot(df.train, 'PTCStage', 'CDR', colors=cdr.colors) +
+  xlab('Stage')
+ggsave('oasis_cdr_bar.png', width=6, height=8) 
 
 # # ==== Bin Centiloid ========
 
@@ -73,6 +76,18 @@ stacked.barplot(df.train, 'HasE4', 'PTCStage', levels=c(T, F), colors=stage.colo
   scale_x_discrete(labels=c('E4-', 'E4+'))
 
 ggsave('oasis_apoe_bar.png', width=4, height=8)
+
+# === MMSE ===========
+
+ggplot(data = df.train, aes(x = PTCStage, y = MMSE, fill = PTCStage)) + 
+  geom_boxplot() +
+  scale_fill_manual(values=stage.colors) +
+  theme_light() +
+  xlab("Stage") +
+  theme(legend.position = 'none',
+        text = element_text(size=20)) 
+
+ggsave('oasis_mmse_boxplot.png', width=6, height=8)
 
 
 # save ========

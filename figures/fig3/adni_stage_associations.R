@@ -12,8 +12,8 @@ setwd(this.dir())
 
 # === Required files =========
 
-PATH.ADNI.WSCORES <- '../fig3/adni_data_with_wscores.csv'
-PATH.ADNI.ORDER <- '../fig3/adni_wscore_stage_order.csv'
+PATH.ADNI.WSCORES <- '../fig2/adni_data_with_wscores.csv'
+PATH.ADNI.ORDER <- '../fig2/adni_wscore_stage_order.csv'
 PATH.SCRIPT.BARPLOT <- '../../scripts/stacked_barplot.R'
 PATH.SCRIPT.STAGING <- '../../scripts/stage_assigner.R'
 
@@ -58,8 +58,12 @@ source(PATH.SCRIPT.BARPLOT)
 
 # === CDR ========
 
-stacked.barplot(df, 'CDRBinned', 'PTCStage', colors=stage.colors) + xlab('CDR')
-ggsave('adni_cdr_bar.png', width=4, height=8)
+cdr.colors = c('0.0'='white', '0.5'='#0072B2', '1.0+'='#CC79A7')
+
+stacked.barplot(df, 'PTCStage', 'CDRBinned', colors=cdr.colors) +
+  xlab('Stage') +
+  guides(fill=guide_legend(title='CDR'))
+ggsave('adni_cdr_bar.png', width=6, height=8)
 
 # ==== Binned Centiloid ========
 
@@ -76,6 +80,18 @@ stacked.barplot(df, 'HasE4', 'PTCStage', levels = c(T, F), colors=stage.colors) 
   scale_x_discrete(labels=c('E4-', 'E4+'))
 
 ggsave('adni_apoe_bar.png', width=4, height=8)
+
+# === MMSE =========
+
+ggplot(data = df, aes(x = PTCStage, y = MMSE, fill = PTCStage)) + 
+  geom_boxplot() +
+  scale_fill_manual(values=stage.colors) +
+  theme_light() +
+  xlab("Stage") +
+  theme(legend.position = 'none',
+        text = element_text(size=20))
+
+ggsave('adni_mmse_boxplot.png', width=6, height=8)
 
 # ======= save =====
 

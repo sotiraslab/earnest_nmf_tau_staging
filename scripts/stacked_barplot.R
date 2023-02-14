@@ -33,7 +33,7 @@ stacked.barplot <- function(df, xcol, ycol, levels=NULL, colors=NULL) {
     ylab('Observations (%)') +
     xlab(xcol) +
     scale_y_continuous(expand=expansion(mult=c(0, .1)), breaks = c(0, 25, 50, 75, 100)) +
-    guides(fill=guide_legend(title="Stage")) +
+    guides(fill=guide_legend(title=ycol)) +
     theme(text = element_text(size=20),
           axis.line.y = element_blank()) +
     geom_segment(aes(y=0,yend=100,x=-Inf,xend=-Inf), color='black', linewidth=1)
