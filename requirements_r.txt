@@ -4,6 +4,7 @@ dplyr
 ggplot2
 ggseg
 ggsurvfit
+gtools
 lubridate
 R.matlab
 stringr
