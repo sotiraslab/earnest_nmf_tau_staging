@@ -19,13 +19,14 @@ setwd(this.dir())
 
 # === Required Files =========
 
-PATH.MAT <- '../../nmf/adni/results/mat/'
+PATH.MAT.ADNI <- '../../nmf/adni/results/mat/'
+PATH.MAT.OASIS <- '../../nmf/oasis3/results/mat/'
 PATH.REGIONS <- '../../derivatives/adni/nmf_regions_ggseg.csv'
 
-# ==== Read data =========
+# ==== Read data: ADNI =========
 
 # NMF solutions
-mats <- mixedsort(list.files(PATH.MAT, full.names = T))
+mats <- mixedsort(list.files(PATH.MAT.ADNI, full.names = T))
 ranks <- as.numeric(str_extract(mats, '\\d+'))
   
 # NMF regions
@@ -44,15 +45,41 @@ for (i in seq_along(mats)) {
   assignments.mat[, i] <- wta
 }
 
-assignments <- as.data.frame(assignments.mat)
+assignments.adni <- as.data.frame(assignments.mat)
 rank.cols <- as.character(ranks)
-colnames(assignments) <- rank.cols
-assignments$Region <- regions$label
+colnames(assignments.adni) <- rank.cols
+assignments.adni$Region <- regions$label
 
+# ==== Read data: OASIS3 =========
 
-# ==== Create plot data ===========
+# NMF solutions
+mats <- mixedsort(list.files(PATH.MAT.OASIS, full.names = T))
+# ranks <- as.numeric(str_extract(mats, '\\d+'))
 
-plot.alluvial <- function(ranks) {
+# NMF regions
+regions <- read.csv(PATH.REGIONS)
+
+# holder for NMF winner take all assignments
+assignments.mat <- matrix(data = NA, nrow = nrow(regions), ncol = length(ranks))
+
+# loop to read and do winner take all
+for (i in seq_along(mats)) {
+  path <- mats[i]
+  print(path)
+  mat.file <- readMat(path)
+  Wnorm <- mat.file$Wnorm
+  wta <- apply(Wnorm, 1, which.max)
+  assignments.mat[, i] <- wta
+}
+
+assignments.oasis <- as.data.frame(assignments.mat)
+rank.cols <- as.character(ranks)
+colnames(assignments.oasis) <- rank.cols
+assignments.oasis$Region <- regions$label
+
+# ==== Plot ===========
+
+plot.alluvial <- function(assignments, ranks) {
   plot.data <- assignments %>%
     pivot_longer(all_of(rank.cols), names_to = 'Rank', values_to = 'Component') %>%
     mutate(Rank = as.numeric(Rank),
@@ -67,24 +94,19 @@ plot.alluvial <- function(ranks) {
     theme_light()
 }
 
-ranks <- c(2, 6, 8)
-plot.data <- assignments %>%
+plot.data <- assignments.adni %>%
   pivot_longer(all_of(rank.cols), names_to = 'Rank', values_to = 'Component') %>%
   mutate(Rank = as.numeric(Rank),
          Component = factor(Component)) %>%
-  filter(Rank %in% ranks)
+  filter(Rank %in% c(2, 6, 8))
 
-t <- plot.data %>%
-  filter(Group == 8) %>%
-  arrange(Component)
+plot.alluvial(assignments.adni, c(2, 6, 8)) +
+  ylab('Region')
 
-plot.data$Region <- factor(plot.data$Region, levels=t$Region)
+ggsave('adni_alluvial_nmf.png', width=8, height=6)
 
-ggplot(plot.data, aes(x = Rank, stratum = Component, alluvium = Region,
-                      fill = Component, label = Component)) +
-  geom_flow(stat = "alluvium", lode.guidance = "frontback", aes.flow='forward') +
-  geom_stratum() +
-  theme_light()
+plot.alluvial(assignments.oasis, c(2, 6, 8)) +
+  ylab('Region')
 
-# plot.alluvial(c(2, 4, 6, 8, 10))
+ggsave('oasis_alluvial_nmf.png', width=8, height=6)
 
