@@ -15,7 +15,7 @@ setwd(this.dir())
 
 # === Necessary Files =========
 
-PATH.OASIS.STAGED <- '../fig4/oasis_data_with_staging.csv'
+PATH.OASIS.STAGED <- '../../derivatives/oasis3/data_with_staging.csv'
 PATH.OASIS.CDR <- '../../rawdata/OASIS3_data_files/scans/UDSb4-Form_B4__Global_Staging__CDR__Standard_and_Supplemental/resources/csv/files/OASIS3_UDSb4_cdr.csv'
 
 # === Read data =======

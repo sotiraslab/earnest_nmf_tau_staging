@@ -14,8 +14,8 @@ setwd(this.dir())
 
 # === Required files =======
 
-PATH.ADNI.WSCORES <- '../fig3/adni_data_with_wscores.csv'
-PATH.ADNI.ORDER <- '../fig3/adni_wscore_stage_order.csv'
+PATH.ADNI.WSCORES <- '../../derivatives/adni/data_with_wscores.csv'
+PATH.ADNI.ORDER <- '../../derivatives/adni/wscore_stage_order.csv'
 
 # === Read data ========
 

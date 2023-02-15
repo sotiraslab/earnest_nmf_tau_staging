@@ -16,7 +16,7 @@ setwd(this.dir())
 
 # === Necessary Files =========
 
-PATH.ADNI.STAGED <- '../fig4/adni_data_with_staging.csv'
+PATH.ADNI.STAGED <- '../../derivatives/adni/data_with_staging.csv'
 
 # === Read data ============
 

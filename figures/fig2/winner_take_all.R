@@ -52,7 +52,8 @@ assignment.df$value <- assignment
 assignment.df <- left_join(assignment.df, mapper, by='value')
 assignment.df$value <- factor(assignment.df$value)
 
-write.csv(assignment.df, 'assignments.csv')
+path.out <- '../../derivatives/adni/ptc8_winner_take_all.csv'
+write.csv(assignment.df, path.out)
 
 # === Plot ==========
 

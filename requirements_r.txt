@@ -3,6 +3,7 @@ colormap
 dplyr
 ggplot2
 ggseg
+ggsignif
 ggsurvfit
 gtools
 lubridate

@@ -47,7 +47,8 @@ adni.predicts <- repeated.wscore.predict(w.adni, adni)
 colnames(adni.predicts) <- paste(colnames(adni.predicts), '.WScore', sep='')
 adni.with.w <- cbind(adni, adni.predicts)
 
-write.csv(adni.with.w, 'adni_data_with_wscores.csv', quote=F, na='', row.names=F)
+path.out <- '../../derivatives/adni/data_with_wscores.csv'
+write.csv(adni.with.w, path.out, quote=F, na='', row.names=F)
 
 # ADNI - Heatmap -------
 
@@ -88,7 +89,8 @@ stage.df <- data.frame(Region=names(stage.order),
                        NPos=stage.order,
                        row.names = NULL)
 
-write.csv(stage.df, 'adni_wscore_stage_order.csv')
+path.out <- '../../derivatives/adni/wscore_stage_order.csv'
+write.csv(stage.df, path.out)
 
 # === OASIS3 =====
 
@@ -117,7 +119,8 @@ oasis.predicts <- repeated.wscore.predict(w.oasis, oasis)
 colnames(oasis.predicts) <- paste(colnames(oasis.predicts), '.WScore', sep='')
 oasis.with.w <- cbind(oasis, oasis.predicts)
 
-write.csv(oasis.with.w, 'oasis_data_with_wscores.csv', quote=F, na='', row.names=F)
+path.out <- '../../derivatives/oasis3/data_with_wscores.csv'
+write.csv(oasis.with.w, path.out, quote=F, na='', row.names=F)
 
 # OASIS - Heatmap -------
 
@@ -159,5 +162,6 @@ stage.df <- data.frame(Region=names(stage.order),
                        NPos=stage.order,
                        row.names = NULL)
 
-write.csv(stage.df, 'oasis_wscore_stage_order.csv')
+path.out <- '../../derivatives/oasis3/wscore_stage_order.csv'
+write.csv(stage.df, path.out)
 

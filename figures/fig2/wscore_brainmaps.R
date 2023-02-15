@@ -14,11 +14,11 @@ setwd(this.dir())
 
 # ==== Required files ========
 
-PATH.ADNI.WSCORES <- 'adni_data_with_wscores.csv'
-PATH.ADNI.ORDER <- 'adni_wscore_stage_order.csv'
-PATH.OASIS.WSCORES <- 'oasis_data_with_wscores.csv'
-PATH.OASIS.ORDER <- 'oasis_wscore_stage_order.csv'
-PATH.REGION.ASSIGNMENT <- 'assignments.csv'
+PATH.ADNI.WSCORES <- '../../derivatives/adni/data_with_wscores.csv'
+PATH.ADNI.ORDER <- '../../derivatives/adni/wscore_stage_order.csv'
+PATH.OASIS.WSCORES <- '../../derivatives/oasis3/data_with_wscores.csv'
+PATH.OASIS.ORDER <- '../../derivatives/oasis3/wscore_stage_order.csv'
+PATH.REGION.ASSIGNMENT <- '../../derivatives/adni/ptc8_winner_take_all.csv'
 
 # ==== Plot adni ====
 
@@ -51,7 +51,7 @@ p
 
 ggsave('adni_wscore_map.png', p, width=7, height=7)
 
-write.csv(plot.data, 'adni_wscore_map.csv', row.names = F)
+write.csv(plot.data, 'adni_wscore_map_data.csv', row.names = F)
 
 # ---- Plot ADRC -------
 

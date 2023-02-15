@@ -2,6 +2,7 @@
 
 sh <- suppressPackageStartupMessages
 
+sh(library(ggsignif))
 sh(library(this.path))
 sh(library(tidyverse))
 
@@ -11,8 +12,8 @@ setwd(this.dir())
 
 # === Required files =========
 
-PATH.ADNI.WSCORES <- '../fig2/adni_data_with_wscores.csv'
-PATH.ADNI.ORDER <- '../fig2/adni_wscore_stage_order.csv'
+PATH.ADNI.WSCORES <- '../../derivatives/adni/data_with_wscores.csv'
+PATH.ADNI.ORDER <- '../../derivatives/adni/wscore_stage_order.csv'
 PATH.SCRIPT.BARPLOT <- '../../scripts/stacked_barplot.R'
 PATH.SCRIPT.STAGING <- '../../scripts/stage_assigner.R'
 
@@ -141,4 +142,5 @@ ggsave('adni_mmse_boxplot.png', width=6, height=8)
 
 # ======= save =====
 
-write.csv(df.all, 'adni_data_with_staging.csv', row.names = F, quote=F, na="")
+path.out <- '../../derivatives/adni/data_with_staging.csv'
+write.csv(df.all, path.out, row.names = F, quote=F, na="")

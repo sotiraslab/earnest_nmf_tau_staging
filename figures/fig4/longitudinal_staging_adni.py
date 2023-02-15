@@ -8,7 +8,7 @@ Created on Mon Oct 31 10:06:26 2022
 
 import pandas as pd
 
-df = pd.read_csv('../fig4/adni_data_with_staging.csv')
+df = pd.read_csv('../../derivatives/adni/data_with_staging.csv')
 
 subject_col = 'RID'
 position_col = 'VisitNumber'
