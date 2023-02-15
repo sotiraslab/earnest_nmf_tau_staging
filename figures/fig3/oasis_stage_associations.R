@@ -41,7 +41,7 @@ df.all$PTCStage <- assign.stages(bin.w, stage.order, c(1, 2, 2, 2, 3, 3, 4, 4), 
 # === prepare for plotting ======
 
 # select only training data
-df.train <- df.all %>%
+df <- df.all %>%
   filter(Group == 'TrainingSet')
 
 # define colors
@@ -53,33 +53,42 @@ source(PATH.SCRIPT.BARPLOT)
 
 # === stage by CDR status =======
 
-df.train$CDR <- factor(df.train$CDR, labels=c('0.0', '0.5', '1.0+'))
+df$CDR <- factor(df$CDR, labels=c('0.0', '0.5', '1.0+'))
 
 cdr.colors = c('0.0'='white', '0.5'='#0072B2', '1.0+'='#CC79A7')
 
-stacked.barplot(df.train, 'PTCStage', 'CDR', colors=cdr.colors) +
+stacked.barplot(df, 'PTCStage', 'CDR', colors=cdr.colors) +
   xlab('Stage')
 ggsave('oasis_cdr_bar.png', width=6, height=8) 
 
+data <- stacked.barplot(df, 'PTCStage', 'CDR', return.data = T)
+write.csv(data, 'oasis_cdr_bar.csv')
+
 # # ==== Bin Centiloid ========
 
-df.train$CentiloidBinned <- cut(df.train$Centiloid, c(-Inf, 40, 60, 80, 100, Inf),
+df$CentiloidBinned <- cut(df$Centiloid, c(-Inf, 40, 60, 80, 100, Inf),
                                 labels=c('<40', '40-60', '60-80', '80-100', '>100'))
 
-stacked.barplot(df.train, 'CentiloidBinned', 'PTCStage', colors=stage.colors) + xlab('Centiloid')
+stacked.barplot(df, 'CentiloidBinned', 'PTCStage', colors=stage.colors) + xlab('Centiloid')
 ggsave('oasis_centiloid_bar.png', width=6, height=8)
+
+data <- stacked.barplot(df, 'CentiloidBinned', 'PTCStage', return.data = T)
+write.csv(data, 'oasis_centiloid_bar.csv')
 
 # === plot APOE =========
 
-stacked.barplot(df.train, 'HasE4', 'PTCStage', levels=c(T, F), colors=stage.colors) +
+stacked.barplot(df, 'HasE4', 'PTCStage', levels=c(T, F), colors=stage.colors) +
   xlab('APOE') +
   scale_x_discrete(labels=c('E4-', 'E4+'))
 
 ggsave('oasis_apoe_bar.png', width=4, height=8)
 
+data <- stacked.barplot(df, 'HasE4', 'PTCStage', return.data = T)
+write.csv(data, 'oasis_apoe_bar.csv')
+
 # === MMSE ===========
 
-ggplot(data = df.train, aes(x = PTCStage, y = MMSE, fill = PTCStage)) + 
+ggplot(data = df, aes(x = PTCStage, y = MMSE, fill = PTCStage)) + 
   geom_boxplot() +
   scale_fill_manual(values=stage.colors) +
   theme_light() +

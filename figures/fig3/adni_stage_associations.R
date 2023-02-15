@@ -2,7 +2,6 @@
 
 sh <- suppressPackageStartupMessages
 
-sh(library(ADNIMERGE))
 sh(library(this.path))
 sh(library(tidyverse))
 
@@ -63,7 +62,11 @@ cdr.colors = c('0.0'='white', '0.5'='#0072B2', '1.0+'='#CC79A7')
 stacked.barplot(df, 'PTCStage', 'CDRBinned', colors=cdr.colors) +
   xlab('Stage') +
   guides(fill=guide_legend(title='CDR'))
+
 ggsave('adni_cdr_bar.png', width=6, height=8)
+
+data <- stacked.barplot(df, 'PTCStage', 'CDRBinned', return.data = T)
+write.csv(data, 'adni_cdr_bar.csv')
 
 # ==== Binned Centiloid ========
 
@@ -73,6 +76,9 @@ df$CentiloidBinned <- cut(df$Centiloid, c(-Inf, 40, 60, 80, 100, Inf),
 stacked.barplot(df, 'CentiloidBinned', 'PTCStage', colors=stage.colors) + xlab('Centiloid')
 ggsave('adni_centiloid_bar.png', width=6, height=8) 
 
+data <- stacked.barplot(df, 'PTCStage', 'CentiloidBinned', return.data = T)
+write.csv(data, 'adni_centiloid_bar.csv')
+
 # === APOE =========
 
 stacked.barplot(df, 'HasE4', 'PTCStage', levels = c(T, F), colors=stage.colors) +
@@ -81,15 +87,55 @@ stacked.barplot(df, 'HasE4', 'PTCStage', levels = c(T, F), colors=stage.colors) 
 
 ggsave('adni_apoe_bar.png', width=4, height=8)
 
+data <- stacked.barplot(df, 'HasE4', 'PTCStage', return.data = T)
+write.csv(data, 'adni_apoe_bar.csv')
+
+# === Chi squared =======
+
+chis <- list(
+  'cdr' = chisq.test(table(df$PTCStage, df$CDRBinned)),
+  'centiloid' = chisq.test(table(df$PTCStage, df$CentiloidBinned)),
+  'apoe' = chisq.test(table(df$PTCStage, df$HasE4))
+)
+
+chi.df <- sapply(chis, function(x) {
+  c('chi'=unname(x$statistic),
+    'df'=unname(x$parameter),
+    'p'=round(unname(x$p.value), 3))
+})
+
+chi.df <- as.data.frame(t(chi.df))
+write.csv(chi.df, 'chi_squared_results.csv')
+
 # === MMSE =========
 
-ggplot(data = df, aes(x = PTCStage, y = MMSE, fill = PTCStage)) + 
+# run stats, get results and convert to arguments understood by ggsignif
+anova <- aov(MMSE ~ PTCStage, data = df)
+posthoc <- as.data.frame(TukeyHSD(anova, method='fdr')$PTCStage)
+
+posthoc.sig <- posthoc %>%
+  filter(`p adj` < 0.05) %>%
+  rownames_to_column('comparison') %>%
+  mutate(annotation = cut(`p adj`,
+                          breaks = c(0, 0.001, 0.01, 0.05, Inf),
+                          labels = c('***', "**", "*", ""),
+                          include.lowest = T)
+         )
+
+comparisons <- str_split(posthoc.sig$comparison, '-')
+n.sig <- nrow(posthoc.sig)
+
+ggplot(data = df, aes(x = PTCStage, y = MMSE, fill = PTCStage)) +
   geom_boxplot() +
   scale_fill_manual(values=stage.colors) +
   theme_light() +
   xlab("Stage") +
   theme(legend.position = 'none',
-        text = element_text(size=20))
+        text = element_text(size=20)) +
+  geom_signif(comparisons=comparisons,
+              annotations = posthoc.sig$annotation,
+              y_position = c(30.5, 32.5, 34.5, 32.5, 30.5),
+              tip_length = 0.01)
 
 ggsave('adni_mmse_boxplot.png', width=6, height=8)
 

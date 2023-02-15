@@ -4,7 +4,8 @@ sh <- suppressPackageStartupMessages
 sh(library(ggplot2))
 sh(library(tidyverse))
 
-stacked.barplot <- function(df, xcol, ycol, levels=NULL, colors=NULL) {
+stacked.barplot <- function(df, xcol, ycol, levels=NULL, colors=NULL,
+                            return.data = F) {
   
   # create data
   plot.data <- df %>%
@@ -18,6 +19,10 @@ stacked.barplot <- function(df, xcol, ycol, levels=NULL, colors=NULL) {
     ungroup() %>%
     group_by(!!sym(xcol)) %>%
     mutate(Percent = N / sum(N) * 100)
+  
+  if (return.data) {
+    return (plot.data)
+  }
   
   # get totals for text
   group.sums <- plot.data %>%
