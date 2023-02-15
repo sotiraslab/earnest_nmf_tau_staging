@@ -65,6 +65,10 @@ This repository does not include data from ADNI/OASIS which require approval to 
 - **Flortaucipir PUP results**
   - https://central.xnat.org/ > Browse > My Projects > OASIS3_AV1451 > Add Tab > PUPs > Options > Edit Columns > Add all columns containing "fSUVR" (the ones containing "rsf" are not needed, but can be included) > Options > Spreadsheet
   - **RENAME THIS FILE:** `oasis_flortaucipir.csv`
+- **FreeSurfer results**
+  - https://central.xnat.org/ > Browse > My Projects > OASIS3 > Add Tab > FreeSurfers > Options > Edit Columns > Add all columns matching `"lh_..._volume"` or  `"rh_..._volume"`> Options > Spreadsheet
+  - **RENAME THIS FILE:** `oasis_freesurfer.csv`
+
 - **OASIS3 Data Files**
   - https://central.xnat.org/ > Browse > My Projects > OASIS3 > On the "Subjects" tab, click "0AS_data_files" > Click "MR Session" next to "OASIS3_data_files" > Select all entries ("demo through DUT") > Bulk Actions: Download.
   - Unzip the downloaded folder, and place it in the `rawdata` folder.  This folder should be called "OASIS3_data_files" (it should not have to be renamed).
