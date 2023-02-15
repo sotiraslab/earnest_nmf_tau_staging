@@ -40,7 +40,16 @@ cdr.merged <- left_join(df, cdr.adni, by='RID') %>%
   ungroup() %>%
   mutate(CDR1.0Event = ifelse(CDR.Long >= 1, 1, 0))
 
-# === Survival: CDR 1.0, with NS =======
+# see supplement for plot with NS included
+cdr.merged <- filter(cdr.merged, PTCStage != 'NS')
+
+# print subjects
+unique.subs <- group_by(cdr.merged, RID) %>%
+  slice_head(n = 1)
+
+table(unique.subs$PTCStage)
+
+# === Survival: CDR 1.0, omit NS =======
 
 colors = c('0' = '#0072B2', '1'= '#009E73', '2' = '#F0E442', '3' = '#E69F00', '4' = '#D55E00', 'NS' = 'gray')
 
@@ -57,25 +66,7 @@ survfit2(Surv(TickerCDR, CDR1.0Event) ~ PTCStage, data=cdr.merged) %>%
   theme(text = element_text(size=20),
         legend.position = 'bottom')
 
+fit <- surv_fit(Surv(TickerCDR, CDR1.0Event) ~ PTCStage, data=cdr.merged)
+surv_pvalue(fit)
 pairwise_survdiff(Surv(TickerCDR, CDR1.0Event) ~ PTCStage, data=cdr.merged)
 ggsave('adni_survival_cdr1.png', width=8, height=6)
-
-# === Survival: CDR 1.0, omit NS =======
-
-cdr.merged.no.NS <- filter(cdr.merged, PTCStage != 'NS')
-
-survfit2(Surv(TickerCDR, CDR1.0Event) ~ PTCStage, data=cdr.merged.no.NS) %>% 
-  ggsurvfit() +
-  labs(
-    x = "Days",
-    y = "Probability of CDR<1",
-  ) +
-  add_confidence_interval() +
-  scale_color_manual(values=colors) +
-  scale_fill_manual(values=colors) +
-  theme_ggsurvfit_KMunicate() +
-  theme(text = element_text(size=20),
-        legend.position = 'bottom')
-
-pairwise_survdiff(Surv(TickerCDR, CDR1.0Event) ~ PTCStage, data=cdr.merged.no.NS)
-ggsave('adni_survival_cdr1_omit_NS.png', width=8, height=6)

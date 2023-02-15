@@ -49,3 +49,25 @@ flow = pd.DataFrame({'subject': df[subject_col],
                      'label_to': g[label_col].shift(-1)}).dropna()
 
 flow.to_csv('adni_stage_flow.csv', index=False)
+
+#%% report som stats
+
+def label(x):
+
+    if (x['label_to'] == 'NS') or (x['label_from'] == 'NS'):
+        return 'NS'
+    else:
+        return None
+
+
+
+
+
+# a = flow['label_from']
+
+# b = flow['label_to']
+# n = len(flow)
+
+# print()
+# print('Stable: {}'.format((a == b).sum() / n))
+# print('Any NS: {}'.format((a )))

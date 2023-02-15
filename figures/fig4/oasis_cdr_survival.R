@@ -49,6 +49,15 @@ cdr.merged <- left_join(df, cdr.oasis, by='Subject') %>%
   ungroup() %>%
   mutate(CDR1.0Event = ifelse(CDR.Long >= 1, 1, 0),
          CDR0.5Event = ifelse(CDR.Long >= 0.5, 1, 0))
+
+# see supplement for plot with NS included
+cdr.merged <- filter(cdr.merged, PTCStage != 'NS')
+
+# print subjects
+unique.subs <- group_by(cdr.merged, Subject) %>%
+  slice_head(n = 1)
+
+table(unique.subs$PTCStage)
   
 # === Survival: CDR 1.0, with NS =======
 
@@ -68,26 +77,9 @@ survfit2(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged) %>%
   theme(text = element_text(size=20),
         legend.position = 'bottom')
 
+fit <- surv_fit(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged)
+surv_pvalue(fit)
 ggsave('oasis_survival_cdr1.png', width=8, height=6)
 pairwise_survdiff(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged)
 
-# === Survival: CDR 1.0, omit NS =======
 
-cdr.merged.no.NS <- filter(cdr.merged, PTCStage != 'NS')
-
-# eight stage group
-survfit2(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged.no.NS) %>% 
-  ggsurvfit() +
-  labs(
-    x = "Days",
-    y = "Probability of CDR<1"
-  ) +
-  add_confidence_interval() +
-  scale_color_manual(values=colors) +
-  scale_fill_manual(values=colors) +
-  theme_ggsurvfit_KMunicate() +
-  theme(text = element_text(size=20),
-        legend.position = 'bottom')
-
-ggsave('oasis_survival_cdr1_omit_NS.png', width=8, height=6)
-pairwise_survdiff(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged.no.NS)
