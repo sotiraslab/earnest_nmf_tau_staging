@@ -56,10 +56,17 @@ def label(x):
 
     if (x['label_to'] == 'NS') or (x['label_from'] == 'NS'):
         return 'NS'
+    elif int(x['label_to']) == int(x['label_from']):
+        return 'stable'
+    elif int(x['label_to']) > int(x['label_from']):
+        return 'increasing'
+    elif int(x['label_to']) < int(x['label_from']):
+        return 'decreasing'
     else:
         return None
 
-
+v = flow.apply(label, axis=1)
+print(v.value_counts() / len(v))
 
 
 
