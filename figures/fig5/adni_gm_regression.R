@@ -118,8 +118,3 @@ ggplot() +
   labs(fill='Pearson R')
 
 ggsave('adni_gm_regression.png', width=8, height=8)
-
-# compare R in each half of heatmap =========
-
-a <- rs.plot[rs.plot$component2 %in% ordered.nice.names[1:4], ]
-b <- rs.plot[rs.plot$component2 %in% ordered.nice.names[5:8], ]
