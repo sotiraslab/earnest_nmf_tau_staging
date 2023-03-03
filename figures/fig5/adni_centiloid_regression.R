@@ -69,3 +69,29 @@ em.summary <- summary(pairs(em, adjust='fdr'))
 
 # save
 write.csv(em.summary, 'emmeans_centiloid_adni.csv', row.names = F)
+
+# === stats to figure ==========
+
+sh(library(stringr))
+
+split.comps <- as.data.frame(str_split(em.summary$contrast, ' - ', simplify = T))
+colnames(split.comps) <- c('RegionA', 'RegionB')
+
+plot.data <- cbind(split.comps, em.summary) %>%
+  mutate(p.code = cut(p.value,
+                      breaks=c(0, 0.001, 0.01, 0.05, Inf),
+                      labels=c('***', '**', '*', '')),
+         RegionA = factor(RegionA, levels=rev(ordered.nice.names)),
+         RegionB = factor(RegionB, levels=ordered.nice.names))
+
+ggplot() +
+  geom_tile(data=plot.data, mapping=aes(y=RegionA, x=RegionB, fill=t.ratio),
+            color='gray') +
+  coord_equal() +
+  theme(axis.text.x = element_text(angle=45, hjust=1),
+        panel.grid.major = element_blank(),
+        panel.background = element_rect(fill='white')) +
+  geom_text(data=plot.data, mapping=aes(y=RegionA, x=RegionB, label=p.code),
+            color='white')
+
+ggsave('centiloid_regression_stats_adni.png', width=8, height=8)

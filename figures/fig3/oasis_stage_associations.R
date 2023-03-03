@@ -89,13 +89,34 @@ write.csv(data, 'oasis_apoe_bar.csv')
 
 # === MMSE ===========
 
-ggplot(data = df, aes(x = PTCStage, y = MMSE, fill = PTCStage)) + 
+# run stats, get results and convert to arguments understood by ggsignif
+anova <- aov(MMSE ~ PTCStage, data = df)
+posthoc <- as.data.frame(TukeyHSD(anova, method='fdr')$PTCStage)
+
+posthoc.sig <- posthoc %>%
+  filter(`p adj` < 0.05) %>%
+  rownames_to_column('comparison') %>%
+  mutate(annotation = cut(`p adj`,
+                          breaks = c(0, 0.001, 0.01, 0.05, Inf),
+                          labels = c('***', "**", "*", ""),
+                          include.lowest = T)
+  )
+
+comparisons <- str_split(posthoc.sig$comparison, '-')
+n.sig <- nrow(posthoc.sig)
+
+ggplot(data = df, aes(x = PTCStage, y = MMSE, fill = PTCStage)) +
   geom_boxplot() +
   scale_fill_manual(values=stage.colors) +
   theme_light() +
   xlab("Stage") +
   theme(legend.position = 'none',
-        text = element_text(size=20)) 
+        text = element_text(size=20)) +
+  geom_signif(comparisons=comparisons,
+              annotations = posthoc.sig$annotation,
+              y_position = c(32.5, 34.5, 36.5, 32.5, 30.5, 30.5),
+              tip_length = 0.01) +
+  coord_cartesian(ylim=c(10, 38))
 
 ggsave('oasis_mmse_boxplot.png', width=6, height=8)
 

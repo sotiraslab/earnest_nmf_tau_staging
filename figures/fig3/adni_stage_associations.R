@@ -136,7 +136,8 @@ ggplot(data = df, aes(x = PTCStage, y = MMSE, fill = PTCStage)) +
   geom_signif(comparisons=comparisons,
               annotations = posthoc.sig$annotation,
               y_position = c(30.5, 32.5, 34.5, 32.5, 30.5),
-              tip_length = 0.01)
+              tip_length = 0.01) +
+  coord_cartesian(ylim=c(10, 38))
 
 ggsave('adni_mmse_boxplot.png', width=6, height=8)
 
