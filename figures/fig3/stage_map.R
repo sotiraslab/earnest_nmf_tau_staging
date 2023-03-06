@@ -14,8 +14,8 @@ setwd(this.dir())
 
 # ==== Required files ========
 
-PATH.ADNI.ORDER <- '../fig3/adni_wscore_stage_order.csv'
-PATH.REGION.ASSIGNMENT <- '../fig3/assignments.csv'
+PATH.ADNI.ORDER <- '../../derivatives/adni/wscore_stage_order.csv'
+PATH.REGION.ASSIGNMENT <- '../../derivatives/adni/ptc8_winner_take_all.csv'
 
 # ==== Plot adni ====
 
