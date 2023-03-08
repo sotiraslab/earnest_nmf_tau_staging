@@ -1,15 +1,56 @@
 
 library(anticlust)
 
-repeated.wscore <- function(control.data, test.data, y, covariates,
-                            match.continuous, match.categorical,
-                            portion.train = 0.8, repeats = 200, seed = T,
-                            verbose = T) {
+repeated.wscore.train <- function(control.data, y, covariates,
+                                  match.continuous, match.categorical,
+                                  portion.train = 0.8, repeats = 200,
+                                  seed = T, verbose = T) {
+  
+  # Overview
+  # --------
+  
+  # Train a repeated sampling W-score model. This is the basic method:
+  
+  #   1. Select a normative dataset relative to your population of interest.
+  #   2. Split this dataset into "train" and "test" portions.
+  #   3. In the training set, learn a linear model to predict a variable of
+  #      interest from a set of covariates.
+  #   4. In the test set, predict the outcome of interest and record the
+  #      standard deviation of the residuals (normative residual).
+  #   5. Repeat steps 2-4 a large number of times, saving each model and 
+  #      normative residual.
+  #   6. For predicting new data, predict on it with all models.  For each,
+  #      get an individual w-score which is the model residual divided by
+  #      the corresponding normative residual.  To get a final W-score,
+  #      average all the individual w-scores from the repeats.
+  #      (see repeated.wscore.predict)
+  
+  # This is based on an approach described in Lee et al. (Neuron, 2022).
+  # The major difference is the splitting of the control set and the 
+  # repeated resampling. The additional splitting of the control set is applied
+  # to provide a more conservative estimate of the residuals.  Because of variance
+  # in this splitting, repeated resampling and averaging is applied.
 
+  
+  # Parameters
+  # ---------
+  # control.data: (data.frame) Table containing wide-form control data
+  # y (character): Character vector containing one or more columns to
+  #     in the control.data to model W-scoring for
+  # covariates (character): columns of the control.data to use as normative
+  #     predictors in the linear models
+  # match.continuous / match.categorical (character): Both character vectors
+  #     specifying variables to use for matching control samples when splitting,
+  #     supplied to anticlust.  Right now this is mandatory.
+  # portion.train (float): proportion of training/testing when splitting controls
+  # repeats (int): number of times to resample
+  # seed (logical): When true, set the random seed each resampling.  Sets to the
+  #     index of each sample.
+  # verbose (logical): add some print statements.
+  
   # returned at top level
   big.output <- list()
   return.splits <- matrix(NA, nrow=nrow(control.data), ncol=repeats)
-  mean.w.scores <- matrix(NA, nrow=nrow(test.data), ncol=length(y))
   
   # first loop, creating data splits
   ntrain <- round(portion.train * nrow(control.data))
@@ -40,7 +81,6 @@ repeated.wscore <- function(control.data, test.data, y, covariates,
     
     holder.models <- list()
     holder.residuals <- rep(NA, repeats)
-    w.scores <- matrix(NA, nrow=nrow(test.data), ncol=repeats)
     
     for (i in 1:repeats) {
       control.train <- control.train.holder[[i]]
@@ -55,35 +95,36 @@ repeated.wscore <- function(control.data, test.data, y, covariates,
       residual.control.sd <- sd(residuals.control)
       holder.residuals[[i]] <- residual.control.sd
       
-      # now calculate w scores
-      predicts.test <- predict(model, test.data)
-      residuals.test <- test.data[[col]] - predicts.test
-      wscore <- residuals.test / residual.control.sd
-      
-      w.scores[, i] <- wscore
-      
     }
-    w.scores.mean <- rowMeans(w.scores)
     collect = list(
-      w.scores.mean = w.scores.mean,
-      w.scores.all = w.scores,
       models = holder.models,
       residuals = holder.residuals
     )
     big.output[[col]] <- collect
-    mean.w.scores[, j] <- w.scores.mean
   }
-  colnames(mean.w.scores) <- y
-  big.output[['..splits']] <- return.splits
-  big.output[['..wscores']] <- mean.w.scores
   
   return (big.output)
+  
 }
 
-repeated.wscore.predict <- function(output, new.data) {
+repeated.wscore.predict <- function(output, new.data, predict.vars = NULL) {
   
-  predict.vars <- names(output)
-  predict.vars <- predict.vars[! grepl('^\\.\\.', predict.vars, perl = T)]
+  # Overview
+  # --------
+  
+  # Apply a trained W-score model on new data.  See repeated.wscore.train
+  # for modeling description and model training.
+  
+  # Parameters
+  # ---------
+  # output (list): output of `repeated.wscore.train`
+  # new.data (data.frame): table to predict new W-scores for
+  # predict.vars (character): specific columns to predict.  When not specified,
+  #     tries to predict for entries in `output`.
+  
+  if (is.null(predict.vars)) {
+    predict.vars <- names(output)
+  }
   
   to.return <- matrix(NA, nrow=nrow(new.data), ncol=length(predict.vars))
   to.return <- as.data.frame(to.return)

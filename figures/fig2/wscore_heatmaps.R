@@ -32,15 +32,14 @@ source(PATH.WSCORE.SCRIPT)
 comp.names.short <-  read.csv(PATH.PTC.NAMES)$Component
 comp.names <- paste('Cmp.', comp.names.short, sep='')
 
-w.adni <- repeated.wscore(control.data = adni.control,
-                           test.data = adni.train,
-                           y = comp.names,
-                           covariates = c('Age', 'Gender'),
-                           match.continuous =  c("Age", "CorticalTauAverage"),
-                           match.categorical = c("Gender"),
-                           portion.train = 0.8,
-                           repeats = 200, 
-                           seed = T)
+w.adni <- repeated.wscore.train(control.data = adni.control,
+                                y = comp.names,
+                                covariates = c('Age', 'Gender'),
+                                match.continuous =  c("Age", "CorticalTauAverage"),
+                                match.categorical = c("Gender"),
+                                portion.train = 0.8,
+                                repeats = 200, 
+                                seed = T)
 
 # save data with W scores
 adni.predicts <- repeated.wscore.predict(w.adni, adni)
@@ -56,7 +55,7 @@ source(PATH.HEATMAP.SCRIPT)
 
 thr <- 2.5
 
-wmat <- w.adni$..wscores
+wmat <- adni.predicts[adni$Group == 'TrainingBaseline', ]
 wmat <- ifelse(wmat > thr, 1, 0)
 wdf <- as.data.frame(wmat)
 colnames(wdf) <- comp.names.short
@@ -104,15 +103,14 @@ oasis.control <- filter(oasis, Group == 'ControlSet')
 
 source(PATH.WSCORE.SCRIPT)
 
-w.oasis <- repeated.wscore(control.data = oasis.control,
-                            test.data = oasis.train,
-                            y = comp.names,
-                            covariates = c('Age', 'Gender'),
-                            match.continuous =  c("Age", "TotalCtxTauMean"),
-                            match.categorical = c("Gender"),
-                            portion.train = 0.8,
-                            repeats = 200, 
-                            seed = T)
+w.oasis <- repeated.wscore.train(control.data = oasis.control,
+                                 y = comp.names,
+                                 covariates = c('Age', 'Gender'),
+                                 match.continuous =  c("Age", "TotalCtxTauMean"),
+                                 match.categorical = c("Gender"),
+                                 portion.train = 0.8,
+                                 repeats = 200, 
+                                 seed = T)
 
 # save data with W scores
 oasis.predicts <- repeated.wscore.predict(w.oasis, oasis)
@@ -126,7 +124,7 @@ write.csv(oasis.with.w, path.out, quote=F, na='', row.names=F)
 
 source(PATH.HEATMAP.SCRIPT)
 
-wmat <- w.oasis$..wscores
+wmat <- oasis.predicts[oasis$Group == 'TrainingSet', ]
 wmat <- ifelse(wmat > thr, 1, 0)
 wdf <- as.data.frame(wmat)
 colnames(wdf) <- comp.names.short
