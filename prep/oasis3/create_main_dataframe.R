@@ -18,6 +18,7 @@ PATH.FTP <- '../../rawdata/oasis_flortaucipir.csv'
 PATH.CENTILOID <- '../../derivatives/oasis3/manual_centiloid.csv'
 PATH.CLINICAL <- '../../rawdata/OASIS3_data_files/scans/UDSb4-Form_B4__Global_Staging__CDR__Standard_and_Supplemental/resources/csv/files/OASIS3_UDSb4_cdr.csv'
 PATH.DEMO <- '../../rawdata/OASIS3_data_files/scans/demo-demographics/resources/csv/files/OASIS3_demographics.csv'
+PATH.NEUROPSYCH <- '../../rawdata/OASIS3_data_files/scans/pychometrics-Form_C1__Cognitive_Assessments/resources/csv/files/OASIS3_UDSc1_cognitive_assessments.csv'
 PATH.OASIS.SUBS <- '../../subject_ids/oasis_subjects.csv'
 
 # === Load tau ROI data =============
@@ -134,6 +135,23 @@ df <- left_join(df, mmse, by='Subject') %>%
   group_by(Subject) %>%
   slice_min(TauMMSEDiff, with_ties = F)
 
+# === Add neuropsych ==========
+
+nps <- read.csv(PATH.NEUROPSYCH)
+
+nps <- nps %>%
+  select(OASISID, days_to_visit, srtfree, MEMUNITS, digsym, ANIMALS, tmb) %>%
+  rename(SessionNeuroPsych = days_to_visit,
+         Subject=OASISID)
+
+df <- left_join(df, nps, by='Subject') %>%
+  mutate(TauNPSDiff = abs(Session - SessionNeuroPsych)) %>%
+  group_by(Subject) %>%
+  slice_min(TauNPSDiff, with_ties = F)
+
+bad.nps <- (df$TauNPSDiff > 365) | (is.na(df$TauNPSDiff))
+df[bad.nps, c('srtfree', 'MEMUNITS', 'digsym', 'ANIMALS', 'tmb')] <- NA
+
 # === Add regional tau =========
 
 tau.rois <- read.csv('../../rawdata/oasis_flortaucipir.csv')
@@ -180,6 +198,53 @@ df$Group <- ifelse(is.na(df$Group) & both,
 df$Group <- ifelse(is.na(df$Group),
                    'Other',
                    df$Group)
+
+# === Calculate PACC ======
+
+compute.pacc <- function(df, pacc.columns,
+                         cn.mask, min.required = 2,
+                         higher.better = NULL) {
+  cn.data <- df[cn.mask, ]
+  n = nrow(df)
+  k = length(pacc.columns)
+  
+  normed.scores <- matrix(data=NA, nrow=n, ncol=k)
+  normed.scores <- as.data.frame(normed.scores)
+  colnames(normed.scores) <- pacc.columns
+  
+  if (is.null(higher.better)) {
+    higher.better <- rep(TRUE, k)
+  }
+  
+  for (i in 1:k) {
+    col <- pacc.columns[i]
+    mu <- mean(cn.data[[col]], na.rm = T)
+    s <- sd(cn.data[[col]], na.rm = T)
+    z <- (df[[col]] - mu) / s
+    
+    if (! higher.better[i]) {
+      z <- (-1 * z)
+    }
+    
+    normed.scores[, i] <- z
+  }
+  
+  pacc.score <- rowMeans(normed.scores, na.rm = T)
+  count.present <- rowSums(! is.na(normed.scores))
+  pacc.score <- ifelse(count.present >= min.required, pacc.score, NA)
+  
+  return(pacc.score)
+}
+
+df$PACC.Hassenstab<- compute.pacc(df,
+                                  pacc.columns = c('srtfree', 'ANIMALS', 'digsym', 'tmb'),
+                                  cn.mask <- df$Group == 'ControlSet',
+                                  higher.better = c(T, T, T, F))
+
+df$PACC.Original <- compute.pacc(df,
+                                 pacc.columns = c('srtfree', 'MEMUNITS', 'digsym', 'MMSE'),
+                                 cn.mask <- df$Group == 'ControlSet',
+                                 higher.better = c(T, T, T, T))
 
 # === Generate subject list =========
 

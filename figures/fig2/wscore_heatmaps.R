@@ -84,6 +84,7 @@ ggsave('adni_wscore_heatmap.png', width=4, height=10)
 # ADNI - Stage Order -------
 sumPos <- colSums(wmat)
 stage.order <- sort(sumPos, decreasing = T)
+names(stage.order) <- gsub('\\.WScore', '', names(stage.order))
 stage.df <- data.frame(Region=names(stage.order),
                        NPos=stage.order,
                        row.names = NULL)
@@ -156,6 +157,7 @@ ggsave('oasis_wscore_heatmap.png', width=4, height=10)
 
 sumPos <- colSums(wmat)
 stage.order <- sort(sumPos, decreasing = T)
+names(stage.order) <- gsub('\\.WScore', '', names(stage.order))
 stage.df <- data.frame(Region=names(stage.order),
                        NPos=stage.order,
                        row.names = NULL)
