@@ -18,6 +18,7 @@ setwd(this.dir())
 
 PATH.PTODEMOG.CSV <- '../../rawdata/PTDEMOG.csv'
 PATH.SUBJECTS.ADNI <- '../../subject_ids/adni_subjects.csv'
+PATH.PACC.SCRIPT <- '../../scripts/pacc.R'
 
 # === load the tau data ==========
 
@@ -121,7 +122,6 @@ df$Centiloid <- ifelse(df$AmyloidTracer == 'FBB' & ! is.na(df$AmyloidTracer),
 # ==== add CDR ===========
 
 thr <- 365 # how many days close the CDR needs to be
-# this is the "1year" of "nmf_on_rois_final_1year"
 
 cdr.record <- cdr
 cdr.record <- cdr[, c("RID", "USERDATE", "CDGLOBAL", "CDRSB")]
@@ -232,6 +232,40 @@ df.gender <- left_join(df, demog.csv, by='RID') %>%
 
 df <- df.gender
 
+# === Add neuropsych ===========
+
+# for computation of PACC, need some neuropsych & ADAS cog Q4
+# see https://adni.bitbucket.io/reference/pacc.html
+
+# 1. Neuropsych battery
+nps <- neurobat %>%
+  select(RID, USERDATE, LDELTOTAL, DIGITSCOR, TRABSCOR) %>%
+  rename(DateNeuropsych=USERDATE) %>%
+  mutate(DateNeuropsych=as_datetime(ymd(DateNeuropsych)))
+
+df <- left_join(df, nps, by='RID') %>%
+  mutate(DiffTauNPS = as.numeric(abs(difftime(DateTau, DateNeuropsych, units='days')))) %>%
+  group_by(ScanIndex) %>%
+  slice_min(DiffTauNPS, with_ties = F)
+
+bad.nps <- (df$DiffTauNPS > thr) | (is.na(df$DiffTauNPS))
+df[bad.nps, c('LDELTOTAL', 'DIGITSCOR', 'TRABSCOR')] <- NA
+
+# 2. ADAS
+adascog <- adas %>%
+  select(RID, USERDATE, Q4SCORE) %>%
+  rename(DateADAS=USERDATE,
+         ADASQ4=Q4SCORE) %>%
+  mutate(DateADS=as_datetime(ymd(DateADAS)))
+
+df <- left_join(df, adascog, by='RID') %>%
+  mutate(DiffTauADAS = as.numeric(abs(difftime(DateTau, DateADAS, units='days')))) %>%
+  group_by(ScanIndex) %>%
+  slice_min(DiffTauNPS, with_ties = F)
+
+bad.adas <- (df$DiffTauADAS > thr) | (is.na(df$DiffTauADAS))
+df[bad.adas, c('ADASQ4')] <- NA
+
 # === Create baseline training df =========
 
 # Note that the order of operations is important for determining
@@ -304,6 +338,20 @@ df$Group <- ifelse(is.na(df$Group) & df$ScanIndex %in% remainder.bl$ScanIndex,
 df$Group <- ifelse(is.na(df$Group) & df$RID %in% remainder.bl$RID,
                    'RemainderLongitudinal',
                    df$Group)
+
+# === Compute PACC =========
+
+# done relative to baseline CN group
+# this is using the modified formula recommended by ADNIMERGE R
+# https://adni.bitbucket.io/reference/pacc.html
+
+source(PATH.PACC.SCRIPT)
+
+df$PACC.ADNI <- compute.pacc(df,
+                             pacc.columns = c('ADASQ4', 'LDELTOTAL', 'TRABSCOR', 'MMSE'),
+                             cn.mask = df$Group == 'ControlBaseline',
+                             higher.better = c(F, T, F, T),
+                             min.required = 2)
 
 # === Generate subject list =========
 

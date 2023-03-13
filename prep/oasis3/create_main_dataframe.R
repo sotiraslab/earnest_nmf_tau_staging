@@ -20,6 +20,7 @@ PATH.CLINICAL <- '../../rawdata/OASIS3_data_files/scans/UDSb4-Form_B4__Global_St
 PATH.DEMO <- '../../rawdata/OASIS3_data_files/scans/demo-demographics/resources/csv/files/OASIS3_demographics.csv'
 PATH.NEUROPSYCH <- '../../rawdata/OASIS3_data_files/scans/pychometrics-Form_C1__Cognitive_Assessments/resources/csv/files/OASIS3_UDSc1_cognitive_assessments.csv'
 PATH.OASIS.SUBS <- '../../subject_ids/oasis_subjects.csv'
+PATH.PACC.SCRIPT <- '../../scripts/pacc.R'
 
 # === Load tau ROI data =============
 
@@ -201,45 +202,7 @@ df$Group <- ifelse(is.na(df$Group),
 
 # === Calculate PACC ======
 
-compute.pacc <- function(df, pacc.columns,
-                         cn.mask, min.required = 2,
-                         higher.better = NULL) {
-  cn.data <- df[cn.mask, ]
-  n = nrow(df)
-  k = length(pacc.columns)
-  
-  normed.scores <- matrix(data=NA, nrow=n, ncol=k)
-  normed.scores <- as.data.frame(normed.scores)
-  colnames(normed.scores) <- pacc.columns
-  
-  if (is.null(higher.better)) {
-    higher.better <- rep(TRUE, k)
-  }
-  
-  for (i in 1:k) {
-    col <- pacc.columns[i]
-    mu <- mean(cn.data[[col]], na.rm = T)
-    s <- sd(cn.data[[col]], na.rm = T)
-    z <- (df[[col]] - mu) / s
-    
-    if (! higher.better[i]) {
-      z <- (-1 * z)
-    }
-    
-    normed.scores[, i] <- z
-  }
-  
-  pacc.score <- rowMeans(normed.scores, na.rm = T)
-  count.present <- rowSums(! is.na(normed.scores))
-  pacc.score <- ifelse(count.present >= min.required, pacc.score, NA)
-  
-  return(pacc.score)
-}
-
-df$PACC.Hassenstab<- compute.pacc(df,
-                                  pacc.columns = c('srtfree', 'ANIMALS', 'digsym', 'tmb'),
-                                  cn.mask <- df$Group == 'ControlSet',
-                                  higher.better = c(T, T, T, F))
+source(PATH.PACC.SCRIPT)
 
 df$PACC.Original <- compute.pacc(df,
                                  pacc.columns = c('srtfree', 'MEMUNITS', 'digsym', 'MMSE'),
