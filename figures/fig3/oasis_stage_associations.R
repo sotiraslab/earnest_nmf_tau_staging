@@ -70,7 +70,10 @@ write.csv(data, 'oasis_cdr_bar.csv')
 df$CentiloidBinned <- cut(df$Centiloid, c(-Inf, 40, 60, 80, 100, Inf),
                                 labels=c('<40', '40-60', '60-80', '80-100', '>100'))
 
-stacked.barplot(df, 'CentiloidBinned', 'PTCStage', colors=stage.colors) + xlab('Centiloid')
+stacked.barplot(df, 'CentiloidBinned', 'PTCStage', colors=stage.colors) +
+  xlab('Centiloid') + 
+  guides(fill = guide_legend(title='Stage'))
+
 ggsave('oasis_centiloid_bar.png', width=6, height=8)
 
 data <- stacked.barplot(df, 'CentiloidBinned', 'PTCStage', return.data = T)
@@ -80,6 +83,7 @@ write.csv(data, 'oasis_centiloid_bar.csv')
 
 stacked.barplot(df, 'HasE4', 'PTCStage', levels=c(T, F), colors=stage.colors) +
   xlab('APOE') +
+  guides(fill = guide_legend(title='Stage')) + 
   scale_x_discrete(labels=c('E4-', 'E4+'))
 
 ggsave('oasis_apoe_bar.png', width=4, height=8)
@@ -90,7 +94,7 @@ write.csv(data, 'oasis_apoe_bar.csv')
 # === MMSE ===========
 
 # run stats, get results and convert to arguments understood by ggsignif
-anova <- aov(MMSE ~ PTCStage, data = df)
+anova <- aov(PACC.Original ~ PTCStage, data = df)
 posthoc <- as.data.frame(TukeyHSD(anova, method='fdr')$PTCStage)
 
 posthoc.sig <- posthoc %>%
@@ -105,20 +109,32 @@ posthoc.sig <- posthoc %>%
 comparisons <- str_split(posthoc.sig$comparison, '-')
 n.sig <- nrow(posthoc.sig)
 
-ggplot(data = df, aes(x = PTCStage, y = MMSE, fill = PTCStage)) +
-  geom_boxplot() +
+mean.pacc <- group_by(df, PTCStage) %>%
+  summarise(PACC.Original = mean(PACC.Original, na.rm=T)) %>%
+  mutate(x=seq(0.5, by=1, length.out=6),
+         xend=seq(1.5, by=1, length.out=6))
+
+ggplot(data = df, aes(x = PTCStage, y = PACC.Original, fill = PTCStage)) +
+  geom_point(position = position_jitter(width = 0.2, seed=42), shape=21, size=2) +
+  geom_segment(data=mean.pacc, aes(x=x, xend=xend, y=PACC.Original, yend=PACC.Original),
+               color='black',
+               linewidth=1) + 
   scale_fill_manual(values=stage.colors) +
   theme_light() +
   xlab("Stage") +
   theme(legend.position = 'none',
-        text = element_text(size=20)) +
+        text = element_text(size=20),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank()) +
+  coord_cartesian(ylim = c(-10, 6)) +
+  scale_y_continuous(breaks=c(0, -2.5, -5, -7.5, -10)) +
   geom_signif(comparisons=comparisons,
               annotations = posthoc.sig$annotation,
-              y_position = c(32.5, 34.5, 36.5, 32.5, 30.5, 30.5),
+              y_position = c(2, 3, 4, 5, 1, 2),
               tip_length = 0.01) +
-  coord_cartesian(ylim=c(10, 38))
+  ylab('PACC')
 
-ggsave('oasis_mmse_boxplot.png', width=6, height=8)
+ggsave('oasis_pacc_scatter.png', width=6, height=8)
 
 
 # save ========
