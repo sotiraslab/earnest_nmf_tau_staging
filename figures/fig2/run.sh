@@ -19,6 +19,5 @@ echo "Done."
 
 echo ""
 echo "Running W-score brain maps..."
-SCRIPT="wscore_brainmaps.R"
-Rscript -e "source('${SCRIPT}', echo=T)"
+python wscore_brainmaps.py
 echo "Done."
