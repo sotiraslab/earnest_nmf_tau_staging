@@ -135,7 +135,7 @@ mean.pacc <- group_by(df, PTCStage) %>%
          xend=seq(1.5, by=1, length.out=6))
 
 ggplot(data = df, aes(x = PTCStage, y = PACC.ADNI, fill = PTCStage)) +
-  geom_point(position = position_jitter(width = 0.2, seed=42), shape=21, size=2) +
+  geom_point(position = position_jitter(width = 0.2, seed=42), shape=21, size=3) +
   geom_segment(data=mean.pacc, aes(x=x, xend=xend, y=PACC.ADNI, yend=PACC.ADNI),
                color='black',
                linewidth=1) + 
@@ -145,13 +145,16 @@ ggplot(data = df, aes(x = PTCStage, y = PACC.ADNI, fill = PTCStage)) +
   theme(legend.position = 'none',
         text = element_text(size=20),
         panel.grid.major.x = element_blank(),
-        panel.grid.minor = element_blank()) +
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank()) +
   coord_cartesian(ylim = c(-10, 6)) +
   scale_y_continuous(breaks=c(0, -2.5, -5, -7.5, -10)) +
   geom_signif(comparisons=comparisons,
               annotations = posthoc.sig$annotation,
               y_position = c(1, 2, 3, 4, 5, 1, 2),
-              tip_length = 0.01) +
+              tip_length = 0.01,
+              size=.75,
+              textsize = 7) +
   ylab('PACC')
 
 ggsave('adni_pacc_scatter.png', width=6, height=8)

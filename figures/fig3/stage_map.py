@@ -88,7 +88,7 @@ ax.imshow(gradient, aspect='auto', cmap='stages')
 ax.axis('off')
 
 for i in range(4):
-    ax.text(x=64*i + 32, y=0.5, s=i+1, ha='center', va='center', font='arial', size=15)
+    ax.text(x=64*i + 32, y=0.5, s=i+1, ha='center', va='center', font='arial', size=20)
 
 fig.savefig('colorbar.png', transparent=True)
 

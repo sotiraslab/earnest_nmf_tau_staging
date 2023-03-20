@@ -111,7 +111,11 @@ ggplot() +
   coord_equal() +
   theme_classic() + 
   theme(axis.text.x = element_text(angle=45, hjust=1),
-        text = element_text(size=15)) +
+        text = element_text(size=15),
+        axis.line.x = element_blank(),
+        axis.line.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank()) +
   scale_fill_colormap(colormap = 'inferno', reverse = T) +
   ylab('Flortaucipir  (SUVR)') +
   xlab(expression(paste('Gray Matter Volume ', (mm^3)))) +

@@ -42,8 +42,8 @@ sns.heatmap(tbl, ax=ax, cmap='inferno', vmin=0, vmax=100, cbar_ax=c1)
 ax.tick_params(axis='both', which='both',length=0)
 ax.set_xticklabels(labels)
 ax.set_yticklabels(labels)
-ax.set_ylabel('Scan 1')
-ax.set_xlabel('Scan 2')
+ax.set_ylabel('Stage (scan 1)')
+ax.set_xlabel('Stage (scan 2)')
 ax.set_xlim([-.1, 6.1])
 ax.set_ylim([6.1, -.1])
 
@@ -51,7 +51,7 @@ ax.set_ylim([6.1, -.1])
 for i in range(len(labels)):
     for j in range(len(labels)):
         if i == j:
-            rec = patches.Rectangle((i, j), width=1, height=1, color='dodgerblue', fill=False, lw=5, zorder=5)
+            rec = patches.Rectangle((i, j), width=1, height=1, color='darkgray', fill=False, lw=5, zorder=5)
             ax.add_patch(rec)
 
 # draw NS box
