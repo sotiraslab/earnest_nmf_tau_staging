@@ -60,7 +60,6 @@ for i, label in enumerate(ptc_names):
                               screenshot=True,
                               zoom=1.7)
 
-#%%
 # ----------
 # plot OASIS
 # ----------
