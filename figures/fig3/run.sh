@@ -22,3 +22,8 @@ echo "Running barplots for OASIS..."
 SCRIPT="oasis_stage_associations.R"
 Rscript -e "source('${SCRIPT}', echo=T)"
 echo "Done."
+
+echo ""
+echo "Running stage brain map..."
+python stage_map.py
+echo ''
