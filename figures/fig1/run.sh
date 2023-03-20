@@ -7,5 +7,5 @@ echo "----------"
 
 echo ""
 echo "Running creation of component images..."
-Rscript -e "source('create_8ptc_ggseg.R', echo=T)"
+python create_8ptc_figures.py
 echo "Done."
