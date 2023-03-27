@@ -142,18 +142,33 @@ print('.......')
 print()
 print('!!! BEGINNING MAIN SCRIPT !!!')
 
-for component in TEST_COMPONENTS:
+for n, component in enumerate(TEST_COMPONENTS):
     print()
     print(f'Component = {component}')
 
-    rotated = alexander_bloch(components[component],
-                                atlas='fsaverage',
-                                density='10k',
-                                n_perm=N_PERM,
-                                seed=42,
-                                parcellation=parcellation)
-
     rows = []
+
+    # this is originally how I set rotations
+    # but John brought up issue that using same
+    # random seed for all comparisons might have issues
+
+    # now, I instead make a new null for each comparison
+    # this takes a bit longer but not terribly so
+
+    # alternative would be to set `seed=n` here and
+    # have one null for each component.  I tried
+    # all these approaches and found similar significance
+    # results - only changes in some associations
+    # near the alpha level (which might just be due
+    # to differences in seed selection rather than problems
+    # with the correlated nulls)
+
+    # rotated = alexander_bloch(components[component],
+    #                           atlas='fsaverage',
+    #                           density='10k',
+    #                           n_perm=N_PERM,
+    #                           seed=42,
+    #                           parcellation=parcellation)
 
     for i, gene in enumerate(genes):
         if i % PROGRESS == 0 and i != 0:
@@ -162,6 +177,13 @@ for component in TEST_COMPONENTS:
         if gene not in expression.columns:
             print(f"Skipping gene={gene}, not found in expression data...")
             continue
+
+        rotated = alexander_bloch(components[component],
+                                  atlas='fsaverage',
+                                  density='10k',
+                                  n_perm=N_PERM,
+                                  seed=8 * n + i,
+                                  parcellation=parcellation)
 
         corr, pval = compare_images(components[component],
                                     expression[gene],
