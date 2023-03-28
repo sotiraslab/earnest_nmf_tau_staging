@@ -63,7 +63,7 @@ em.summary <- summary(pairs(em, adjust='fdr'))
 # save
 write.csv(em.summary, 'emmeans_centiloid_oasis.csv', row.names = F)
 
-# === stats to figure ==========
+# === Supplement: Stats figure ==========
 
 sh(library(stringr))
 
@@ -78,13 +78,20 @@ plot.data <- cbind(split.comps, em.summary) %>%
          RegionB = factor(RegionB, levels=ordered.nice.names))
 
 ggplot() +
-  geom_tile(data=plot.data, mapping=aes(y=RegionA, x=RegionB, fill=t.ratio),
-            color='gray') +
+  geom_tile(data=plot.data, mapping=aes(y=RegionA, x=RegionB, fill=t.ratio)) +
   coord_equal() +
   theme(axis.text.x = element_text(angle=45, hjust=1),
         panel.grid.major = element_blank(),
-        panel.background = element_rect(fill='white')) +
+        panel.background = element_rect(fill='white'),
+        text = element_text(size=20),
+        axis.ticks = element_blank()) +
   geom_text(data=plot.data, mapping=aes(y=RegionA, x=RegionB, label=p.code),
-            color='white')
+            color='white', size=7) +
+  xlab('PTC') +
+  ylab('PTC')
 
-ggsave('centiloid_regression_stats_oasis3.png', width=8, height=8)
+outdir <- '../../supplement/figS6/'
+dir.create(outdir, showWarnings = F)
+outpath <- file.path(outdir, 'centiloid_regression_stats_oasis.png')
+
+ggsave(outpath, width=8, height=8)
