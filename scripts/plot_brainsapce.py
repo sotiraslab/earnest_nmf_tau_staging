@@ -59,24 +59,3 @@ def plot_dkt_table_brainspace(dkt_table, layer='inflated', **kwargs):
         **kwargs
     )
     return fig
-
-# # main
-# path_regions = '/Users/earnestt1234/Documents/GitHub/nmf_tau/derivatives/adni/nmf_regions_ggseg.csv'
-# path_mat = '/Users/earnestt1234/Documents/GitHub/nmf_tau/nmf/adni/results/mat/NumBases8.mat'
-# fsdir = '/Applications/freesurfer/7.2.0'
-
-# nmf_regions = pd.read_csv(path_regions)
-# region_names = nmf_regions['label']
-
-# for i in range(8):
-#     print(i, '...')
-#     dkt_table = nmf_component_to_dkt_table(path_mat, i, region_names)
-#     plot_dkt_table_brainspace(dkt_table,
-#                               fsdir,
-#                               layer='pial',
-#                               size=(1600, 300),
-#                               cmap='plasma',
-#                               nan_color=(0.5, 0.5, 0.5, 1),
-#                               filename=f'component_{i}.png',
-#                               screenshot=True,
-#                               zoom=1.7)
