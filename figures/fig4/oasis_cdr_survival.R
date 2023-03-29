@@ -78,8 +78,21 @@ survfit2(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged) %>%
         legend.position = 'bottom')
 
 fit <- surv_fit(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged)
-surv_pvalue(fit)
+posthoc <- pairwise_survdiff(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged)
 ggsave('oasis_survival_cdr1.png', width=8, height=6)
-pairwise_survdiff(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged)
 
+surv_pvalue(fit)
 
+# ==========
+
+ps <- posthoc$p.value %>%
+  as.data.frame() %>%
+  rownames_to_column('stage_1') %>%
+  pivot_longer(cols = c('0', '1', '2', '3'), values_to = 'p.value') %>%
+  filter(! is.na(p.value)) %>%
+  mutate(annotation = cut(p.value,
+                          breaks = c(0, 0.001, 0.01, 0.05, Inf),
+                          labels = c('***', "**", "*", ""),
+                          include.lowest = T),
+         p.value = round(p.value, 5))
+write.csv(ps, 'SUPPLEMENT_survival_posthoc_oasis3.csv')

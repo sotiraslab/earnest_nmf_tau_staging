@@ -58,7 +58,12 @@ sh(library(emmeans))
 
 m <- lm(AvgSUVR ~ Centiloid + PTC + Age + GENDER, data=long.centiloid)
 em <- emmeans(m, 'PTC')
-em.summary <- summary(pairs(em, adjust='fdr'))
+em.summary <- summary(pairs(em, adjust='fdr')) %>%
+  mutate(across(where(is.numeric), round, 3),
+         annotation = cut(p.value,
+                          breaks = c(0, 0.001, 0.01, 0.05, Inf),
+                          labels = c('***', "**", "*", ""),
+                          include.lowest = T))
 
 # save
 write.csv(em.summary, 'SUPPLEMENT_emmeans_centiloid_oasis3.csv', row.names = F)

@@ -161,6 +161,11 @@ ggsave('adni_pacc_scatter.png', width=6, height=8)
 
 print(summary(anova))
 
+# save posthoc stats
+posthoc.res <- posthoc.res %>%
+  mutate(across(where(is.numeric), round, 3))
+write.csv(posthoc.res, 'SUPPLEMENT_pacc_posthoc_adni.csv')
+
 # ======= save =====
 
 path.out <- '../../derivatives/adni/data_with_staging.csv'

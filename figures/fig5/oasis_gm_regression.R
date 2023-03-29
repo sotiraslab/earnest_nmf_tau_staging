@@ -133,12 +133,14 @@ ggsave('oasis_gm_regression.png', width=8, height=8)
 
 # === Save stats ==========
 
-output.dir <- '../../supplement/tableS9'
-dir.create(output.dir, showWarnings = F)
-outpath <- file.path(output.dir, 'gm_correlations_oasis3.csv')
-
 stats.df <- rs
 colnames(stats.df) <- c('regionFTP', 'regionGM', 'R')
-stats.df$p <- ps$value
+stats.df <- stats.df %>%
+  mutate(p.value = ps$value,
+         across(where(is.numeric), round, 7),
+         annotation = cut(p.value,
+                          breaks = c(0, 0.001, 0.01, 0.05, Inf),
+                          labels = c('***', "**", "*", ""),
+                          include.lowest = T))
 
-write.csv(stats.df, outpath)
+write.csv(stats.df, 'SUPPLEMENT_gm_correlations_oasis3.csv')

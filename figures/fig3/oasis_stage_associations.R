@@ -97,14 +97,14 @@ write.csv(data, 'oasis_apoe_bar.csv')
 anova <- aov(PACC.Original ~ PTCStage, data = df)
 posthoc <- as.data.frame(TukeyHSD(anova, method='fdr')$PTCStage)
 
-posthoc.sig <- posthoc %>%
-  filter(`p adj` < 0.05) %>%
+posthoc.res <- posthoc %>%
   rownames_to_column('comparison') %>%
   mutate(annotation = cut(`p adj`,
                           breaks = c(0, 0.001, 0.01, 0.05, Inf),
                           labels = c('***', "**", "*", ""),
                           include.lowest = T)
   )
+posthoc.sig <- filter(posthoc.res, `p adj` < 0.05)
 
 comparisons <- str_split(posthoc.sig$comparison, '-')
 n.sig <- nrow(posthoc.sig)
@@ -139,6 +139,12 @@ ggplot(data = df, aes(x = PTCStage, y = PACC.Original, fill = PTCStage)) +
 
 ggsave('oasis_pacc_scatter.png', width=6, height=8)
 
+print(summary(anova))
+
+# save posthoc stats
+posthoc.res <- posthoc.res %>%
+  mutate(across(where(is.numeric), round, 3))
+write.csv(posthoc.res, 'SUPPLEMENT_pacc_posthoc_oasis3.csv')
 
 # save ========
 
