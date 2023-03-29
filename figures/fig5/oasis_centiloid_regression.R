@@ -63,7 +63,8 @@ em.summary <- summary(pairs(em, adjust='fdr')) %>%
          annotation = cut(p.value,
                           breaks = c(0, 0.001, 0.01, 0.05, Inf),
                           labels = c('***', "**", "*", ""),
-                          include.lowest = T))
+                          include.lowest = T)) %>%
+  select(-df, -SE)
 
 # save
 write.csv(em.summary, 'SUPPLEMENT_emmeans_centiloid_oasis3.csv', row.names = F)
