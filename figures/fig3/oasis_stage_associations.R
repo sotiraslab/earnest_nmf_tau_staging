@@ -91,6 +91,23 @@ ggsave('oasis_apoe_bar.png', width=4, height=8)
 data <- stacked.barplot(df, 'HasE4', 'PTCStage', return.data = T)
 write.csv(data, 'oasis_apoe_bar.csv')
 
+# === Chi squared =======
+
+chis <- list(
+  'cdr' = chisq.test(table(df$PTCStage, df$CDR)),
+  'centiloid' = chisq.test(table(df$PTCStage, df$CentiloidBinned)),
+  'apoe' = chisq.test(table(df$PTCStage, df$HasE4))
+)
+
+chi.df <- sapply(chis, function(x) {
+  c('chi'=unname(x$statistic),
+    'df'=unname(x$parameter),
+    'p'=round(unname(x$p.value), 3))
+})
+
+chi.df <- as.data.frame(t(chi.df))
+write.csv(chi.df, 'chi_squared_results_oasis3.csv')
+
 # === MMSE ===========
 
 # run stats, get results and convert to arguments understood by ggsignif

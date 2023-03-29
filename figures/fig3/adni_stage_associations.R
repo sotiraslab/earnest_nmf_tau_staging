@@ -109,7 +109,7 @@ chi.df <- sapply(chis, function(x) {
 })
 
 chi.df <- as.data.frame(t(chi.df))
-write.csv(chi.df, 'chi_squared_results.csv')
+write.csv(chi.df, 'chi_squared_results_adni.csv')
 
 # === PACC =========
 
