@@ -130,3 +130,15 @@ ggplot() +
   labs(fill='Pearson R')
 
 ggsave('oasis_gm_regression.png', width=8, height=8)
+
+# === Save stats ==========
+
+output.dir <- '../../supplement/tableS9'
+dir.create(output.dir, showWarnings = F)
+outpath <- file.path(output.dir, 'gm_correlations_oasis3.csv')
+
+stats.df <- rs
+colnames(stats.df) <- c('regionFTP', 'regionGM', 'R')
+stats.df$p <- ps$value
+
+write.csv(stats.df, outpath)

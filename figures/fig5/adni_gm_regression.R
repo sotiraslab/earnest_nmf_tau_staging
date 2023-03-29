@@ -122,3 +122,15 @@ ggplot() +
   labs(fill='Pearson R')
 
 ggsave('adni_gm_regression.png', width=8, height=8)
+
+# === Save stats ==========
+
+output.dir <- '../../supplement/tableS8'
+dir.create(output.dir, showWarnings = F)
+outpath <- file.path(output.dir, 'gm_correlations_adni.csv')
+
+stats.df <- rs
+colnames(stats.df) <- c('regionFTP', 'regionGM', 'R')
+stats.df$p <- ps$value
+
+write.csv(stats.df, outpath)
