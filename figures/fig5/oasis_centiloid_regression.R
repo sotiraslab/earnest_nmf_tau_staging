@@ -61,7 +61,12 @@ em <- emmeans(m, 'PTC')
 em.summary <- summary(pairs(em, adjust='fdr'))
 
 # save
-write.csv(em.summary, 'emmeans_centiloid_oasis.csv', row.names = F)
+# save
+outdir <- '../../supplement/tableS7/'
+dir.create(outdir, showWarnings = F)
+outpath <- file.path(outdir, 'emmeans_centiloid_oasis3.csv')
+
+write.csv(em.summary, outpath, row.names = F)
 
 # === Supplement: Stats figure ==========
 
