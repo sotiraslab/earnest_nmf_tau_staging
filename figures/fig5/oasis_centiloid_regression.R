@@ -61,12 +61,7 @@ em <- emmeans(m, 'PTC')
 em.summary <- summary(pairs(em, adjust='fdr'))
 
 # save
-# save
-outdir <- '../../supplement/tableS7/'
-dir.create(outdir, showWarnings = F)
-outpath <- file.path(outdir, 'emmeans_centiloid_oasis3.csv')
-
-write.csv(em.summary, outpath, row.names = F)
+write.csv(em.summary, 'SUPPLEMENT_emmeans_centiloid_oasis3.csv', row.names = F)
 
 # === Supplement: Stats figure ==========
 
@@ -95,8 +90,4 @@ ggplot() +
   xlab('PTC') +
   ylab('PTC')
 
-outdir <- '../../supplement/figS6/'
-dir.create(outdir, showWarnings = F)
-outpath <- file.path(outdir, 'centiloid_regression_stats_oasis.png')
-
-ggsave(outpath, width=8, height=8)
+ggsave('SUPPLEMENT_centiloid_regression_stats_oasis.png', width=8, height=8)
