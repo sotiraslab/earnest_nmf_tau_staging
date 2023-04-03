@@ -12,6 +12,7 @@ import pandas as pd
 
 df = pd.read_csv('wightman_hits.csv')
 table = df.pivot(index='Gene', columns='Component', values='R')
+table = table.reindex(['MedialTemporal', 'Occipital', 'Sensorimotor', 'Orbitofrontal'], axis=1)
 rows, cols = table.shape
 
 plt.rcParams.update({'font.family': 'arial'})
