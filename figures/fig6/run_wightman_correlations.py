@@ -34,7 +34,7 @@ GENE_LIST = 'wightman_genes.txt'
 # # # # # # # # # # # # # # # #
 
 PROGRESS = 10
-N_PERM = 5000
+N_PERM = 10000
 P_CORRECT = ['fdr_bh']
 
 # # # # # # # # # # # # # # # #

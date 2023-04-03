@@ -10,6 +10,7 @@ Created on Mon Mar 20 10:09:12 2023
 # imports
 # ----------
 
+import os
 import sys
 
 import matplotlib.pyplot as plt
@@ -20,11 +21,9 @@ import pandas as pd
 # required files
 # ----------
 
-# THIS MUST BE RUN AFTER TABLE 2 HAS BEEN RUN
-
-PATH_ABAGEN_EXPRESSION = '../../tables/table2/abagen_expression_dkt.csv'
-PATH_DKT_LABELS = '../../tables/table2/dkt_labels.csv'
-PATH_HITS = '../../tables/table2/wightman_hits.csv'
+PATH_ABAGEN_EXPRESSION = 'abagen_expression_dkt.csv'
+PATH_DKT_LABELS = 'dkt_labels.csv'
+PATH_HITS = 'wightman_hits.csv'
 PATH_SCRIPTS = '../../scripts'
 
 # ----------
@@ -52,8 +51,11 @@ from plot_brainsapce import plot_dkt_table_brainspace
 # plot genes
 # ----------
 
-genes = wightman_hits['Gene'].unique()
+outdir = 'genefigs'
+if not os.path.isdir(outdir ):
+    os.mkdir(outdir )
 
+genes = wightman_hits['Gene'].unique()
 
 for i, gene in enumerate(genes):
     print(f'Plotting gene #{i} == {gene}')
@@ -66,7 +68,7 @@ for i, gene in enumerate(genes):
                               size=(1600, 300),
                               cmap='inferno',
                               nan_color=(0.5, 0.5, 0.5, 1),
-                              filename=f'{gene}.png',
+                              filename=f'{outdir}/{gene}.png',
                               screenshot=True,
                               zoom=1.7)
 
@@ -81,4 +83,4 @@ fig, ax = plt.subplots(figsize=(7, 1), dpi=300)
 ax.imshow(gradient, aspect='auto', cmap='inferno')
 ax.axis('off')
 
-fig.savefig('colorbar.png', transparent=True)
+fig.savefig(f'{outdir}/colorbar.png', transparent=True)
