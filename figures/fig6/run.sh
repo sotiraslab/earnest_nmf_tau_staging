@@ -28,3 +28,12 @@ echo ""
 echo "Collecting significant results..."
 python collect_results.py
 echo "Done."
+
+echo ""
+echo "Creating gene expression brain figures..."
+python gene_expression_figures.py
+echo "Done."
+
+echo "Create association table image..."
+python gene_table.py
+echo "Done."
