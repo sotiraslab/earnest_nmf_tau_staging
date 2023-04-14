@@ -1,4 +1,6 @@
 abagen>=0.1
+brainspace>=0.1
+brainstat>=0.4
 matplotlib>=3.6
 natsort>=8.2
 neuromaps>=0.0
@@ -6,4 +8,5 @@ nibabel>=4.0.2
 numpy>=1.23
 pandas>=1.5
 scipy>=1.9
+seaborn>=0.12
 statsmodels>=0.13
