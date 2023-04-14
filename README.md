@@ -17,7 +17,7 @@ Once you have completed the [setup](#setup) steps, you can try using some of the
 
 #### Create main analysis tables (run_build_datasets.sh)
 
-`run_build_datasets.sh` should be run first.  This will create several tables in the `derivatives` folder for both the ADNI & OASIS3 datasets.
+`run_build_datasets.sh` creates several tables in the `derivatives` folder for both the ADNI & OASIS3 datasets.  This must be run before creating any figures.
 
 #### Create figures (run_all_figures.sh)
 
