@@ -1,0 +1,9 @@
+abagen>=0.1
+matplotlib>=3.6
+natsort>=8.2
+neuromaps>=0.0
+nibabel>=4.0.2
+numpy>=1.23
+pandas>=1.5
+scipy>=1.9
+statsmodels>=0.13

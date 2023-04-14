@@ -39,7 +39,9 @@ This project used the following languages:
 - R (4.2.0)
 - MATLAB (2022b)
 
-Specific packages required for R and Python are provided in the `requirements_python.txt` and `requirements_r.txt` files.
+The [requirements](https://github.com/sotiraslab/nmf_tau/tree/main/figures) documents specific required packages and helper scripts for installing them.  Specifically, use `install_requirements.sh` to install all necessary R & Python packages (these are documented in `requirements_r.txt` and `requirements_python.txt`, respectively).
+
+MATLAB scripts do not require any specific packages/add-ons.  All necessary MATLAB code files should be included in this repository.
 
 BASH scripts are also used for stitching together other scripts.
 

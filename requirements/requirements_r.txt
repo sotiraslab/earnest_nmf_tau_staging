@@ -7,7 +7,7 @@ ggsignif
 ggsurvfit
 gtools
 lubridate
-ppcorr
+ppcor
 R.matlab
 stringr
 survival
