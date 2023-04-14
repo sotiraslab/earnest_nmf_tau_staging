@@ -2,7 +2,9 @@
 # --- helper function ------
 install.with.check <- function(package) {
   print(sprintf('Package: %s', package))
-  if (! package %in% rownames(installed.packages())) {
+  if (package == "ADNIMEERGE") {
+    print('  - see here for installing ADNIMERGE: https://adni.bitbucket.io/')
+  } else if (! package %in% rownames(installed.packages())) {
     print('    - Installing...')
     install.packages(package)
     print('    - Done.')
