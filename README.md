@@ -91,7 +91,46 @@ This repository does not include data from ADNI/OASIS which require approval to 
 Please log any issues for trouble running or reproducing analyses.  Before doing so, note:
 
 - Make sure you have the required software and packages installed and available.
+
 - Make sure you have added the required data from ADNI & OASIS3
+
 - Some (hopefully small) deviation in results is expected.  This could be because:
   - There is a random process that is not seeded.  I tried to have most random functions seeded, but I may have missed something.
+  
   - *The data provided by ADNI or OASIS have been updated*.  This should not be an issue for OASIS-3 which has a stable release, but may be an issue for the ADNI.  The ADNIMERGE R package is not meaningfully versioned, and can only be compared based on the date of download (the version I originally used is from November, 2022).  I have included a list of the subjects I used in the `subject_lists` folder, which is used to filter the subjects going into the main subject tables being created.   However, this will not account for other assessments which are linked to these subjects (e.g., CDR scores, amyloid imaging, etc.)
+  
+## Figure table
+
+These tables document all the figures/tables produced for the text, and the specific folders containing the scripts that produce them.  **Note that for the supplement, some outputs are produced in the figure folders for the main text!**
+
+### Main text
+
+| Title    | Description                            | Folder          |
+| -------- | -------------------------------------- | --------------- |
+| Figure 1 | 8 PTC visualization                    | `figures/fig1`  |
+| Figure 2 | W-score & cross-sectional ordering     | `figures/fig2`  |
+| Figure 3 | Staging (cross-sectional)              | `figures/fig3`  |
+| Figure 4 | Staging (longitudinal)                 | `figures/fig4`  |
+| Figure 5 | Continuous regresssions (Centiloid/GM) | `figures/fig5`  |
+| Figure 6 | Gene expression results                | `figures/fig6`  |
+| Table 1  | ADS demographics                       | `tables/table1` |
+
+### Supplement
+
+| Title     | Description                     | Folder                |
+| --------- | ------------------------------- | --------------------- |
+| Table S1  | CN demographics                 | `suppplement/tableS1` |
+| Figure S1 | Model selection                 | `suppplement/figS1`   |
+| Figure S2 | 6 PTC solutions                 | `suppplement/figS2`   |
+| Figure S3 | 2 PTC solutions                 | `suppplement/figS3`   |
+| Figure S4 | OASIS bootstrap staging         | `suppplement/figS4`   |
+| Figure S5 | Survival plots with NS          | `suppplement/figS5`   |
+| Figure S6 | Centiloid posthoc heatmap       | `figures/fig5`        |
+| Table S2  | ADNI PACC post-hoc comparisons  | `figures/fig3`        |
+| Table S3  | OASIS PACC post-hoc comparisons | `figures/fig3`        |
+| Table S4  | ADNI survival post-hoc          | `figures/fig4`        |
+| Table S5  | OASIS survival post-hoc         | `figures/fig4`        |
+| Table S6  | ADNI centiloid posthoc          | `figures/fig5`        |
+| Table S7  | OASIS centiloid posthoc         | `figures/fig5`        |
+| Table S8  | ADNI GM stats                   | `figures/fig5`        |
+| Table S9  | OASIS GM stats                  | `figures/fig5`        |
