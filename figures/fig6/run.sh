@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "------------------"
-echo "TABLE 2"
+echo "FIGURE 6"
 echo "------------------"
 
 echo ""
