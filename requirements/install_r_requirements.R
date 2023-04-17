@@ -6,7 +6,7 @@ install.with.check <- function(package) {
     print('  - see here for installing ADNIMERGE: https://adni.bitbucket.io/')
   } else if (! package %in% rownames(installed.packages())) {
     print('    - Installing...')
-    install.packages(package)
+    install.packages(package, repos = "http://cran.us.r-project.org")
     print('    - Done.')
   } else {
     print('    - Already installed!')
