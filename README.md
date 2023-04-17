@@ -27,7 +27,7 @@ Note that the gene expression correlation results (Figure 6) take a relatively l
 
 #### Rerunning NMF
 
-[See the NMF folder README](https://github.com/sotiraslab/nmf_tau/tree/main/nmf).
+The scripts above will not rerun NMF - [see the NMF folder README for information on how to do so](https://github.com/sotiraslab/nmf_tau/tree/main/nmf).
 
 ## Requirements
 
