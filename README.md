@@ -25,6 +25,10 @@ Once you have completed the [setup](#setup) steps, you can try using some of the
 
 Note that the gene expression correlation results (Figure 6) take a relatively long time to run (several minutes to download the gene expression, and another several minutes to run the correlations).
 
+#### Create extra supplemental figures (run_all_supplemental.sh)
+
+`run_all_supplemental.sh` runs extra supplemental figures and saves them in the `supplement` folder.  Note that some supplemental figures are produced in the `figures` folder - [see the figures table below](#figure-table).
+
 #### Rerunning NMF
 
 The scripts above will not rerun NMF - [see the NMF folder README for information on how to do so](https://github.com/sotiraslab/nmf_tau/tree/main/nmf).
