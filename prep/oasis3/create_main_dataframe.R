@@ -64,33 +64,42 @@ amyloid.df.proc <- amyloid.df %>%
          SessionAmyloid = adrc_session_to_number(PUPLongID),
          AmyloidPositive = ifelse(AmyloidTracer == 'AV45',
                                   CentiloidPVC >= 20.6,
-                                  CentiloidPVC >= 16.4))
+                                  CentiloidPVC >= 16.4),
+         Indexer = 1:n())
 
-# merge into the df
-
-total.tau <- nrow(df)
-tau.no.amyloid <- length(df$Subject[! df$Subject %in% amyloid.df.proc$Subject])
+amyloid.selector <- function(Indexer, TauAmyloidGap, AmyloidStatus) {
+  
+  omit1 <- is.na(TauAmyloidGap) 
+  omit2 <- (TauAmyloidGap < -365)
+  mask.omit <- omit1 | omit2 
+  
+  if (all(mask.omit)) {
+    return(NA)
+  }
+  
+  Indexer <- Indexer[ ! mask.omit]
+  TauAmyloidGap <- TauAmyloidGap[! mask.omit]
+  AmyloidStatus <- AmyloidStatus[! mask.omit]
+  
+  closest.scan.index <- which.min(abs(TauAmyloidGap))
+  
+  if (abs(TauAmyloidGap[closest.scan.index]) <= 365 | AmyloidStatus[closest.scan.index] == 1) {
+    return (Indexer[which.min(abs(TauAmyloidGap))])
+  } else {
+    return (NA)
+  }
+}
 
 df.merge <- left_join(df, amyloid.df.proc, by='Subject') %>%
   mutate(TauAmyloidDiff = Session - SessionAmyloid) %>%
-  drop_na(AmyloidPositive)
-
-n1 <- length(unique(df.merge$Subject))
-df.merge <- filter(df.merge, TauAmyloidDiff > -365)
-n2 <- length(unique(df.merge$Subject))
-no.recent.amyloid <- n1 - n2
-  
-status <- df.merge %>%
   group_by(Subject) %>%
-  arrange(-CentiloidPVC) %>%
-  summarise(AnyAmyloidPositive = any(AmyloidPositive),
-            MixStatus = any(AmyloidPositive) & ! all(AmyloidPositive),
-            Centiloid = first(CentiloidPVC),
-            TauAmyloidDiff = first(TauAmyloidDiff)) %>%
-  ungroup()
+  summarise(Indexer=amyloid.selector(Indexer, TauAmyloidDiff, AmyloidPositive)) %>%
+  ungroup() %>%
+  left_join(select(amyloid.df.proc, -Subject), by='Indexer')
 
 # assign status
-df <- left_join(df, status, by='Subject')
+df <- left_join(df, df.merge, by='Subject') %>%
+  mutate(TauAmyloidDiff = Session - SessionAmyloid)
 
 # === Add CDR ==========
 
@@ -159,7 +168,7 @@ tau.rois <- read.csv('../../rawdata/oasis_flortaucipir.csv')
 
 # === Select amyloid positive df ==========
 
-df.amyloidpos <- df[! is.na(df$AnyAmyloidPositive) & df$AnyAmyloidPositive, ]
+df.amyloidpos <- df[! is.na(df$AmyloidPositive) & df$AmyloidPositive, ]
 table(df.amyloidpos$CDR, useNA = 'always')
 
 # corpus callosum & cerebllum are omitted to match ADNI
@@ -190,7 +199,7 @@ df$Group <- ifelse(is.na(df$Group) & df$Subject %in% df.amyloidpos$Subject,
                    NA)
 
 cdr0 <- (df$CDR == 0 & ! is.na(df$CDR))
-amyneg <- (! is.na(df$AnyAmyloidPositive) & df$AnyAmyloidPositive == F)
+amyneg <- (! is.na(df$AmyloidPositive) & df$AmyloidPositive == F)
 both <- cdr0 & amyneg
 df$Group <- ifelse(is.na(df$Group) & both,
                    'ControlSet',

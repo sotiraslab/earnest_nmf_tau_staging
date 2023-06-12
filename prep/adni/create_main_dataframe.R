@@ -19,6 +19,7 @@ setwd(this.dir())
 PATH.PTODEMOG.CSV <- '../../rawdata/PTDEMOG.csv'
 PATH.SUBJECTS.ADNI <- '../../subject_ids/adni_subjects.csv'
 PATH.PACC.SCRIPT <- '../../scripts/pacc.R'
+PATH.EXAMDATE.SCRIPT <- '../../scripts/adni_examdate.R'
 
 # === load the tau data ==========
 
@@ -121,12 +122,19 @@ df$Centiloid <- ifelse(df$AmyloidTracer == 'FBB' & ! is.na(df$AmyloidTracer),
 
 # ==== add CDR ===========
 
+source(PATH.EXAMDATE.SCRIPT)
+
 thr <- 365 # how many days close the CDR needs to be
 
-cdr.record <- cdr
-cdr.record <- cdr[, c("RID", "USERDATE", "CDGLOBAL", "CDRSB")]
-colnames(cdr.record) <- c("RID", "CDRDate", "CDRGlobal", "CDRSumBoxes")
-cdr.record$CDRDate <- as_datetime(ymd(cdr.record$CDRDate))
+cdr.record <- cdr %>%
+  as.data.frame() %>%
+  mutate(CDRDate = ifelse(is.na(EXAMDATE),
+                          get.examdate.from.registry(cdr),
+                          EXAMDATE),
+         CDRDate = as_datetime(ymd(CDRDate))) %>%
+  select(RID, CDRDate, CDGLOBAL, CDRSB) %>%
+  rename(CDRGlobal=CDGLOBAL, CDRSumBoxes=CDRSB) %>%
+  drop_na(CDRGlobal)
 
 cdr.df <- left_join(df, cdr.record, by='RID')
 cdr.df$TauCDRGap <- as.numeric(abs(cdr.df$DateTau - cdr.df$CDRDate), units='days')
@@ -135,7 +143,7 @@ cdr.df <- group_by(cdr.df, ScanIndex) %>%
   slice_min(order_by=TauCDRGap, with_ties = F) %>% ungroup()
 
 bad <- is.na(cdr.df$CDRGlobal) | (cdr.df$TauCDRGap > thr)
-cdr.df[bad, c("CDRDate", "CDRGlobal", "CDRSumBoxes", "TauCDRGap")] <- NA
+cdr.df[bad, c("CDRGlobal", "CDRSumBoxes")] <- NA
 
 cdr.df <- cdr.df %>% mutate(CDRBinned=cut(CDRGlobal, breaks=c(0, .5, 1, Inf), right=F))
 levels(cdr.df$CDRBinned) <- c("0.0", "0.5", "1.0+")
@@ -146,9 +154,12 @@ df <- as.data.frame(cdr.df)
 
 # add MMSE
 mmse.adni <- mmse %>%
-  dplyr::select(RID, USERDATE, MMSCORE) %>%
-  rename(DateMMSE=USERDATE, MMSE=MMSCORE) %>%
-  mutate(DateMMSE=as_datetime(ymd(DateMMSE)))
+  mutate(DateMMSE = ifelse(is.na(EXAMDATE),
+                           get.examdate.from.registry(mmse),
+                           EXAMDATE),
+         DateMMSE = as_datetime(ymd(DateMMSE))) %>%
+  dplyr::select(RID, DateMMSE, MMSCORE) %>%
+  rename(MMSE=MMSCORE)
 
 mmse.merged <- left_join(df, mmse.adni, by='RID') %>%
   mutate(TauMMSEDiff = difftime(DateTau, DateMMSE, units='days')) %>%
@@ -183,10 +194,13 @@ df$HasE4 <- ifelse(is.na(df$APOEGenotype), NA, grepl('4', df$APOEGenotype))
 # calculate difference from that age
 
 min.ages <- ptdemog %>%
-  select(RID, USERDATE, AGE, PTGENDER) %>%
-  rename(DateDemogBL=USERDATE, AgeBL=AGE, Gender=PTGENDER) %>%
-  mutate(DateDemogBL=as_datetime(ymd(DateDemogBL)),
-         AgeBL = as.numeric(AgeBL)) %>%
+  mutate(DateDemogBL = ifelse(is.na(EXAMDATE),
+                              get.examdate.from.registry(ptdemog),
+                              as.character(EXAMDATE)),
+         DateDemogBL = as_datetime(ymd(DateDemogBL))) %>%
+  select(RID, DateDemogBL, AGE, PTGENDER) %>%
+  rename(AgeBL=AGE, Gender=PTGENDER) %>%
+  mutate(AgeBL = as.numeric(AgeBL)) %>%
   drop_na(AgeBL) %>%
   group_by(RID) %>%
   slice_min(DateDemogBL)
@@ -239,9 +253,11 @@ df <- df.gender
 
 # 1. Neuropsych battery
 nps <- neurobat %>%
-  select(RID, USERDATE, LDELTOTAL, DIGITSCOR, TRABSCOR) %>%
-  rename(DateNeuropsych=USERDATE) %>%
-  mutate(DateNeuropsych=as_datetime(ymd(DateNeuropsych)))
+  mutate(DateNeuropsych = ifelse(is.na(EXAMDATE),
+                                get.examdate.from.registry(neurobat),
+                                EXAMDATE),
+         DateNeuropsych = as_datetime(ymd(DateNeuropsych))) %>%
+  select(RID, DateNeuropsych, LDELTOTAL, DIGITSCOR, TRABSCOR)
 
 df <- left_join(df, nps, by='RID') %>%
   mutate(DiffTauNPS = as.numeric(abs(difftime(DateTau, DateNeuropsych, units='days')))) %>%
@@ -253,10 +269,12 @@ df[bad.nps, c('LDELTOTAL', 'DIGITSCOR', 'TRABSCOR')] <- NA
 
 # 2. ADAS
 adascog <- adas %>%
-  select(RID, USERDATE, Q4SCORE) %>%
-  rename(DateADAS=USERDATE,
-         ADASQ4=Q4SCORE) %>%
-  mutate(DateADS=as_datetime(ymd(DateADAS)))
+  mutate(DateADAS = ifelse(is.na(EXAMDATE),
+                           get.examdate.from.registry(adas),
+                           EXAMDATE),
+         DateADAS = as_datetime(ymd(DateADAS))) %>%
+  select(RID, DateADAS, Q4SCORE) %>%
+  rename(ADASQ4=Q4SCORE)
 
 df <- left_join(df, adascog, by='RID') %>%
   mutate(DiffTauADAS = as.numeric(abs(difftime(DateTau, DateADAS, units='days')))) %>%
