@@ -2,10 +2,10 @@
 
 echo ""
 echo "----------"
-echo "MODEL SELECTION"
+echo "BETWEEN DATASET SIMILARITY"
 echo "----------"
 
 echo ""
 echo "Running plots..."
-python adni_model_selection.py
+python intersample_reproducibility.py
 echo "Done."

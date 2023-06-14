@@ -7,5 +7,5 @@ echo "----------"
 
 echo ""
 echo "Running plots..."
-python adni_model_selection.py
+python oasis_model_selection.py
 echo "Done."
