@@ -59,3 +59,22 @@ for i, label in enumerate(ptc_names):
                               filename=f'{label}-ADNI.png',
                               screenshot=True,
                               zoom=1.7)
+
+# ----------
+# plot OASIS
+# ----------
+
+matches = loadmat(PATH_8PTC_MATCH)['idx_hug1']
+
+for i, label in enumerate(ptc_names):
+    print(f'({i}) plotting OASIS match for PTC-{label}...')
+    component_index = matches[i][0] - 1
+    dkt_table = nmf_component_to_dkt_table(PATH_NMF_MAT_OASIS, component_index=component_index, region_names=regions)
+    plot_dkt_table_brainspace(dkt_table,
+                              layer='pial',
+                              size=(1600, 300),
+                              cmap='plasma',
+                              nan_color=(0.5, 0.5, 0.5, 1),
+                              filename=f'{label}-OASIS.png',
+                              screenshot=True,
+                              zoom=1.7)
