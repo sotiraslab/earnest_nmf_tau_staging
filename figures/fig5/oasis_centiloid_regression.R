@@ -78,10 +78,7 @@ split.comps <- as.data.frame(str_split(em.summary$contrast, ' - ', simplify = T)
 colnames(split.comps) <- c('RegionA', 'RegionB')
 
 plot.data <- cbind(split.comps, em.summary) %>%
-  mutate(p.code = cut(p.value,
-                      breaks=c(0, 0.001, 0.01, 0.05, Inf),
-                      labels=c('***', '**', '*', '')),
-         RegionA = factor(RegionA, levels=rev(ordered.nice.names)),
+  mutate(RegionA = factor(RegionA, levels=rev(ordered.nice.names)),
          RegionB = factor(RegionB, levels=ordered.nice.names))
 
 ggplot() +
@@ -92,7 +89,7 @@ ggplot() +
         panel.background = element_rect(fill='white'),
         text = element_text(size=20),
         axis.ticks = element_blank()) +
-  geom_text(data=plot.data, mapping=aes(y=RegionA, x=RegionB, label=p.code),
+  geom_text(data=plot.data, mapping=aes(y=RegionA, x=RegionB, label=annotation),
             color='white', size=7) +
   xlab('PTC') +
   ylab('PTC')

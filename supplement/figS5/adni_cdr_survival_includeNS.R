@@ -17,6 +17,7 @@ setwd(this.dir())
 # === Necessary Files =========
 
 PATH.ADNI.STAGED <- '../../derivatives/adni/data_with_staging.csv'
+PATH.EXAMDATE <- '../../scripts/adni_examdate.R'
 
 # === Read data ============
 
@@ -26,10 +27,15 @@ df <- read.csv(PATH.ADNI.STAGED) %>%
 
 # === Add CDR ======
 
+source(PATH.EXAMDATE)
+
 cdr.adni <- cdr %>%
-  dplyr::select(RID, USERDATE, CDGLOBAL) %>%
-  rename(DateCDR.Long=USERDATE, CDR.Long=CDGLOBAL) %>%
-  mutate(DateCDR.Long=as_datetime(ymd(DateCDR.Long)))
+  mutate(DateCDR.Long = ifelse(is.na(EXAMDATE),
+                               get.examdate.from.registry(cdr),
+                               EXAMDATE),
+         DateCDR.Long = as_datetime(ymd(DateCDR.Long))) %>%
+  dplyr::select(RID, DateCDR.Long, CDGLOBAL) %>%
+  rename(CDR.Long=CDGLOBAL)
 
 cdr.merged <- left_join(df, cdr.adni, by='RID') %>%
   drop_na(CDR.Long) %>%

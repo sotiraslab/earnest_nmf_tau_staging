@@ -17,6 +17,7 @@ setwd(this.dir())
 # === Necessary Files =========
 
 PATH.ADNI.STAGED <- '../../derivatives/adni/data_with_staging.csv'
+PATH.EXAMDATE <- '../../scripts/adni_examdate.R'
 
 # === Read data ============
 
@@ -26,10 +27,15 @@ df <- read.csv(PATH.ADNI.STAGED) %>%
 
 # === Add CDR ======
 
+source(PATH.EXAMDATE)
+
 cdr.adni <- cdr %>%
-  dplyr::select(RID, USERDATE, CDGLOBAL) %>%
-  rename(DateCDR.Long=USERDATE, CDR.Long=CDGLOBAL) %>%
-  mutate(DateCDR.Long=as_datetime(ymd(DateCDR.Long)))
+  mutate(DateCDR.Long = ifelse(is.na(EXAMDATE),
+                               get.examdate.from.registry(cdr),
+                               EXAMDATE),
+         DateCDR.Long = as_datetime(ymd(DateCDR.Long))) %>%
+  dplyr::select(RID, DateCDR.Long, CDGLOBAL) %>%
+  rename(CDR.Long=CDGLOBAL)
 
 cdr.merged <- left_join(df, cdr.adni, by='RID') %>%
   drop_na(CDR.Long) %>%
@@ -77,12 +83,12 @@ surv_pvalue(fit)
 
 ps <- posthoc$p.value %>%
   as.data.frame() %>%
-  rownames_to_column('stage_1') %>%
-  pivot_longer(cols = c('0', '1', '2', '3'), values_to = 'p.value') %>%
+  rownames_to_column('a') %>%
+  pivot_longer(cols = c('0', '1', '2', '3'), values_to = 'p.value', names_to = 'b') %>%
   filter(! is.na(p.value)) %>%
   mutate(annotation = cut(p.value,
                           breaks = c(0, 0.001, 0.01, 0.05, Inf),
                           labels = c('***', "**", "*", ""),
                           include.lowest = T),
          p.value = round(p.value, 5))
-write.csv(ps, 'SUPPLEMENT_survival_posthoc_adni.csv')
+write.csv(ps, 'SUPPLEMENT_survival_posthoc_adni.csv', row.names = F)

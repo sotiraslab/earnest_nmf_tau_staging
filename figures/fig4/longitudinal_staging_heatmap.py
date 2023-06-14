@@ -42,17 +42,20 @@ sns.heatmap(tbl, ax=ax, cmap='inferno', vmin=0, vmax=100, cbar_ax=c1)
 ax.tick_params(axis='both', which='both',length=0)
 ax.set_xticklabels(labels)
 ax.set_yticklabels(labels)
-ax.set_ylabel('Stage (scan 1)')
-ax.set_xlabel('Stage (scan 2)')
+ax.set_ylabel('Stage (current)')
+ax.set_xlabel('Stage (follow-up)')
 ax.set_xlim([-.1, 6.1])
 ax.set_ylim([6.1, -.1])
 
-# draw boxes on diagonal
+# draw boxes on diagonal & text
 for i in range(len(labels)):
     for j in range(len(labels)):
         if i == j:
             rec = patches.Rectangle((i, j), width=1, height=1, color='darkgray', fill=False, lw=5, zorder=5)
             ax.add_patch(rec)
+
+        s = str(round(tbl.iloc[i, j], 1))
+        ax.text(x=j+.5, y=i+.5, s=s, ha='center', va='center', color='white')
 
 # draw NS box
 r1 = patches.Rectangle((0, 5), width=6, height=1, color='white', fill=False, lw=5, zorder=1)

@@ -58,13 +58,13 @@ amyloid.df.proc <- amyloid.df %>%
          tracer,
          ManualCentiloid) %>%
   rename(AmyloidTracer = tracer,
-         CentiloidPVC = ManualCentiloid,
+         Centiloid = ManualCentiloid,
          PUPLongID = PUP_PUPTIMECOURSEDATA.ID) %>%
   mutate(Subject = str_extract(PUPLongID, 'OAS\\d+'),
          SessionAmyloid = adrc_session_to_number(PUPLongID),
          AmyloidPositive = ifelse(AmyloidTracer == 'AV45',
-                                  CentiloidPVC >= 20.6,
-                                  CentiloidPVC >= 16.4),
+                                  Centiloid >= 20.6,
+                                  Centiloid >= 16.4),
          Indexer = 1:n())
 
 amyloid.selector <- function(Indexer, TauAmyloidGap, AmyloidStatus) {
