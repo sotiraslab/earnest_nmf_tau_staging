@@ -2,11 +2,7 @@
 
 echo ""
 echo "----------"
-echo "CDR Survival with NS"
+echo "6 PTCS"
 echo "----------"
 
-SCRIPT="adni_cdr_survival_includeNS.R"
-Rscript -e "source('${SCRIPT}', echo=T)"
-
-SCRIPT="oasis_cdr_survival_includeNS.R"
-Rscript -e "source('${SCRIPT}', echo=T)"
+python create_6ptc_figures.py
