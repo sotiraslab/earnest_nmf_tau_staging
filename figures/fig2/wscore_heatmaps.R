@@ -148,7 +148,7 @@ stage.heatmap.by(df.plot, by='CDR',
         legend.box.just = "right",
         legend.margin = margin(6, 6, 6, 6)) +
   xlab('PTC') +
-  ggtitle('ADNI-ADS PTC Positivity') +
+  ggtitle('OASIS3-ADS PTC Positivity') +
   guides(fill=guide_legend(title="CDR"))
 
 ggsave('oasis_wscore_heatmap.png', width=4, height=10)
