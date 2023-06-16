@@ -2,8 +2,6 @@
 
 This repository contains public code for Tom's project (applying non-negative matrix factorization to flortaucipir images).
 
-![](img/figure1.png)
-
 ## Setup
 
 0. Make sure you have installed the [required software](#requirements).
