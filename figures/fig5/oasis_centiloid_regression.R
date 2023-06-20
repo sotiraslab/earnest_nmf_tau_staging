@@ -56,7 +56,7 @@ ggsave(filename = 'centiloid_loadings_oasis.png', width=12, height=6)
 
 sh(library(emmeans))
 
-m <- lm(AvgSUVR ~ Centiloid + PTC + Age + GENDER, data=long.centiloid)
+m <- lm(AvgSUVR ~ Centiloid*PTC + Age + GENDER, data=long.centiloid)
 summary(m)
 em <- emmeans(m, 'PTC')
 em.summary <- summary(pairs(em, adjust='fdr')) %>%

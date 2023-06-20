@@ -15,7 +15,8 @@ import numpy as np
 from scipy.io import loadmat
 
 def recon_error_plots(input_matrix_csv, nmf_results_folder,
-                      output_folder=None, scale=False):
+                      output_folder=None, scale=False,
+                      xlab='Number of Components'):
 
     # read data
     X = np.loadtxt(input_matrix_csv, delimiter=',')
@@ -44,9 +45,7 @@ def recon_error_plots(input_matrix_csv, nmf_results_folder,
 
     # recon error
     xticks = [i for i in ranks if i % 2 == 0]
-
     ylab = 'Reconstruction error'
-    xlab = 'Number of Components'
 
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.plot(ranks, errors, zorder=3, color='red', lw=3)
@@ -64,7 +63,6 @@ def recon_error_plots(input_matrix_csv, nmf_results_folder,
 
     # gradient recon error
     ylab = 'Gradient of reconstruction error'
-    xlab = 'Number of Components'
 
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.plot(ranks, np.diff(errors, append=np.nan), zorder=3, color='red', lw=3)
@@ -80,7 +78,8 @@ def recon_error_plots(input_matrix_csv, nmf_results_folder,
         plt.tight_layout()
         plt.savefig(os.path.join(output_folder, 'recon_error_gradient.png'), dpi=300)
 
-def reproducibility_plots(reproducibility_stats_mat, output_folder=None):
+def reproducibility_plots(reproducibility_stats_mat, output_folder=None,
+                          xlab='Number of Components'):
 
     d = loadmat(reproducibility_stats_mat)
     ari = d['repeat_ARI']
@@ -98,7 +97,6 @@ def reproducibility_plots(reproducibility_stats_mat, output_folder=None):
 
     color = 'dodgerblue'
     ylab = 'Adjusted Rand Index'
-    xlab = 'Number of Components'
 
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.plot(x, ari.mean(axis=0), zorder=3, lw=3, color=color)
@@ -118,7 +116,6 @@ def reproducibility_plots(reproducibility_stats_mat, output_folder=None):
     x = ranks
     color = 'dodgerblue'
     ylab = 'Mean Inner Product'
-    xlab = 'Number of PTCs'
 
     fig, ax = plt.subplots(figsize=(8, 6))
 

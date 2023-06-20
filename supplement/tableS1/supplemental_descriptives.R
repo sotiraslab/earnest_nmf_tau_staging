@@ -210,4 +210,4 @@ results <- sapply(chis, function(x) {
 
 results <- as.data.frame(t(results))
 
-write.csv(results, 'chi_adni.csv')
+write.csv(results, 'chi_oasis.csv')
