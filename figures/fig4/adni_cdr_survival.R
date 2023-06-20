@@ -85,6 +85,8 @@ ps <- posthoc$p.value %>%
   as.data.frame() %>%
   rownames_to_column('a') %>%
   pivot_longer(cols = c('0', '1', '2', '3'), values_to = 'p.value', names_to = 'b') %>%
+  mutate(comparison = paste(a, b, sep=' vs ')) %>%
+  select(comparison, p.value) %>%
   filter(! is.na(p.value)) %>%
   mutate(annotation = cut(p.value,
                           breaks = c(0, 0.001, 0.01, 0.05, Inf),
