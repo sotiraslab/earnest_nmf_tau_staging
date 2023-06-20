@@ -19,13 +19,14 @@ from scipy.io import loadmat
 # required files
 # ----------
 
+K = 6
+
 PATH_REGIONS = '../../derivatives/adni/nmf_regions_ggseg.csv'
-PATH_NMF_MAT_ADNI = '../../nmf/adni/results/mat/NumBases6.mat'
-PATH_NMF_MAT_OASIS = '../../nmf/oasis3/results/mat/NumBases6.mat'
+PATH_NMF_MAT_ADNI = f'../../nmf/adni/results/mat/NumBases{K}.mat'
+PATH_NMF_MAT_OASIS = f'../../nmf/oasis3/results/mat/NumBases{K}.mat'
 PATH_SCRIPTS = '../../scripts'
 
 # matched components are provided in the figS3 directory
-K = 6
 PATH_PTC_MATCH = f'../figS3/adni_v_oasis_compare/matching/Match{K}.mat'
 
 # ----------
