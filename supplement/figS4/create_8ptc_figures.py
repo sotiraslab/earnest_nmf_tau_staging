@@ -26,7 +26,8 @@ PATH_NMF_MAT_OASIS = '../../nmf/oasis3/results/mat/NumBases8.mat'
 PATH_SCRIPTS = '../../scripts'
 
 # matched components are provided in the figS3 directory
-PATH_8PTC_MATCH = '../figS3/adni_v_oasis_compare/matching/Match8.mat'
+K = 8
+PATH_PTC_MATCH = f'../figS3/adni_v_oasis_compare/matching/Match{K}.mat'
 
 # ----------
 # read inputs
@@ -64,7 +65,7 @@ for i, label in enumerate(ptc_names):
 # plot OASIS
 # ----------
 
-matches = loadmat(PATH_8PTC_MATCH)['idx_hug1']
+matches = loadmat(PATH_PTC_MATCH)['idx_hug1']
 
 for i, label in enumerate(ptc_names):
     print(f'({i}) plotting OASIS match for PTC-{label}...')
