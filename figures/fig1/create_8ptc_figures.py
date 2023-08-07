@@ -51,6 +51,10 @@ from plot_brainsapce import nmf_component_to_dkt_table, plot_dkt_table_brainspac
 for i, label in enumerate(ptc_names):
     print(f'({i}) plotting PTC-{label}...')
     dkt_table = nmf_component_to_dkt_table(PATH_NMF_MAT_ADNI, component_index=i, region_names=regions)
+    # mini = dkt_table['value'].min()
+    # maxi = dkt_table['value'].max()
+    # thr = mini + (.01 * (maxi - mini))
+    # dkt_table.loc[dkt_table['value'] < thr, 'value'] = pd.NA
     plot_dkt_table_brainspace(dkt_table,
                               layer='pial',
                               size=(1600, 300),
