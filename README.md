@@ -1,6 +1,6 @@
-# Learning flortaucipir patterns with NMF
+# Staging of tau pathology using NMF
 
-This repository contains public code for Tom's project (applying non-negative matrix factorization to flortaucipir images).
+This repository contains public code for Tom's project (applying non-negative matrix factorization for staging of tau PET data).
 
 ## Setup
 
