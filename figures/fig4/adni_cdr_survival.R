@@ -60,7 +60,7 @@ table(unique.subs$PTCStage)
 colors = c('0' = '#0072B2', '1'= '#009E73', '2' = '#F0E442', '3' = '#E69F00', '4' = '#D55E00', 'NS' = 'gray')
 
 survfit2(Surv(TickerCDR, CDR1.0Event) ~ PTCStage, data=cdr.merged) %>% 
-  ggsurvfit() +
+  ggsurvfit(linetype_aes = T, size=1.5) +
   labs(
     x = "Days",
     y = "Probability of CDR<1",

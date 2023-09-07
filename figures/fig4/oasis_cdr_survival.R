@@ -65,7 +65,7 @@ colors = c('0' = '#0072B2', '1'= '#009E73', '2' = '#F0E442', '3' = '#E69F00', '4
 
 # eight stage group
 survfit2(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged) %>% 
-  ggsurvfit() +
+  ggsurvfit(linetype_aes = T, size=1.5) +
   labs(
     x = "Days",
     y = "Probability of CDR<1"
