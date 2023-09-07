@@ -177,13 +177,15 @@ cent.data <- df %>%
          Stage3 = cumsum(TmpStage >= 3) / n(),
          Stage4 = cumsum(TmpStage >= 4) / n(),
          StageNS = cumsum(PTCStage == 'NS') / n()) %>%
-  pivot_longer(c(Stage1, Stage2, Stage3, Stage4, StageNS), names_to = 'Stage', values_to = 'Proportion')
+  pivot_longer(c(Stage1, Stage2, Stage3, Stage4, StageNS), names_to = 'Stage', values_to = 'Proportion') %>%
+  mutate(Stage = gsub("Stage", '', Stage))
 
 ggplot(cent.data, aes(x=Centiloid, y=Proportion, color=Stage, linetype=Stage)) +
   geom_step(linewidth=1) +
   theme_light() +
   scale_color_manual(values=unname(stage.colors[c('1', '2', '3', '4', 'NS')])) +
-  coord_cartesian(ylim=c(0, .5))
+  coord_cartesian(ylim=c(0, .5)) +
+  theme(text = element_text(size=20))
 
 ggsave('SUPPLEMENT_adni_stage_by_centiloids.png', width=8, height=6)
 
