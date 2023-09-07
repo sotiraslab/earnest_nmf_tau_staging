@@ -21,7 +21,7 @@ import pandas as pd
 # required files
 # ----------
 
-PATH_WTA = '/Users/earnestt1234/Documents/GitHub/nmf_tau/derivatives/adni/ptc8_winner_take_all.csv'
+PATH_WTA = '../../derivatives/adni/ptc8_winner_take_all.csv'
 PATH_SCRIPTS = '../../scripts'
 
 # ----------

@@ -119,20 +119,19 @@ These tables document all the figures/tables produced for the text, and the spec
 
 ### Supplement
 
-| Title     | Description                     | Folder                |
-| --------- | ------------------------------- | --------------------- |
-| Table S1  | CN demographics                 | `suppplement/tableS1` |
-| Figure S1 | Model selection                 | `suppplement/figS1`   |
-| Figure S2 | 6 PTC solutions                 | `suppplement/figS2`   |
-| Figure S3 | 2 PTC solutions                 | `suppplement/figS3`   |
-| Figure S4 | OASIS bootstrap staging         | `suppplement/figS4`   |
-| Figure S5 | Survival plots with NS          | `suppplement/figS5`   |
-| Figure S6 | Centiloid posthoc heatmap       | `figures/fig5`        |
-| Table S2  | ADNI PACC post-hoc comparisons  | `figures/fig3`        |
-| Table S3  | OASIS PACC post-hoc comparisons | `figures/fig3`        |
-| Table S4  | ADNI survival post-hoc          | `figures/fig4`        |
-| Table S5  | OASIS survival post-hoc         | `figures/fig4`        |
-| Table S6  | ADNI centiloid posthoc          | `figures/fig5`        |
-| Table S7  | OASIS centiloid posthoc         | `figures/fig5`        |
-| Table S8  | ADNI GM stats                   | `figures/fig5`        |
-| Table S9  | OASIS GM stats                  | `figures/fig5`        |
+| Title     | Description                        | Folde                 |
+| --------- | ---------------------------------- | --------------------- |
+| Figure S1 | Model selection                    | `suppplement/figS1`   |
+| Figure S2 | ADNI v OASIS component comparison  | `suppplement/figS2`   |
+| Figure S3 | Staging proportions with centiloid | `figures/fig3`        |
+| Figure S4 | Survival plots with NS             | `suppplement/figS5`   |
+| Figure S5 | Centiloid posthoc heatmap          | `figures/fig5`        |
+| Table S1  | CN demographics                    | `suppplement/tableS1` |
+| Table S2  | ADNI PACC post-hoc comparisons     | `figures/fig3`        |
+| Table S3  | OASIS PACC post-hoc comparisons    | `figures/fig3`        |
+| Table S4  | ADNI survival post-hoc             | `figures/fig4`        |
+| Table S5  | OASIS survival post-hoc            | `figures/fig4`        |
+| Table S6  | ADNI centiloid posthoc             | `figures/fig5`        |
+| Table S7  | OASIS centiloid posthoc            | `figures/fig5`        |
+| Table S8  | ADNI GM stats                      | `figures/fig5`        |
+| Table S9  | OASIS GM stats                     | `figures/fig5`        |

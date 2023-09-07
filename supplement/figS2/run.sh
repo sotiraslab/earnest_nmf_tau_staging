@@ -2,10 +2,7 @@
 
 echo ""
 echo "----------"
-echo "MODEL SELECTION"
+echo "8 PTCS"
 echo "----------"
 
-echo ""
-echo "Running plots..."
-python oasis_model_selection.py
-echo "Done."
+python create_8ptc_figures.py
