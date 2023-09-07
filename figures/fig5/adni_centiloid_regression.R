@@ -46,12 +46,13 @@ colors = colormap('jet', nshades = 8)
 colors[1] <- 'black'
 names(colors) <- ordered.nice.names
 
-ggplot(data=long.centiloid, aes(x=Centiloid, y=AvgSUVR, group=PTC, color=PTC)) + 
+ggplot(data=long.centiloid, aes(x=Centiloid, y=AvgSUVR, group=PTC, color=PTC, linetype=PTC)) + 
   geom_smooth(alpha=.3, method='lm') +
   scale_color_manual(values=colors) +
   ylab('Flortaucipir (Z-score)') +
   theme_light() +
-  theme(text = element_text(size=20)) +
+  theme(text = element_text(size=20),
+        legend.key.size = unit(2, 'line')) +
   coord_cartesian(xlim=c(15, 200), ylim=c(0, 10)) +
   scale_x_continuous(breaks=c(25, 50, 75, 100, 125, 150, 175, 200))
 
