@@ -2,6 +2,8 @@
 
 This repository contains public code for Tom's project (applying non-negative matrix factorization for staging of tau PET data).
 
+![](img/ptc_figure.png)
+
 ## Setup
 
 0. Make sure you have installed the [required software](#requirements).
