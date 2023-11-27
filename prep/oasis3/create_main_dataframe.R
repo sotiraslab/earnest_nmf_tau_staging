@@ -21,6 +21,7 @@ PATH.DEMO <- '../../rawdata/OASIS3_data_files/scans/demo-demographics/resources/
 PATH.NEUROPSYCH <- '../../rawdata/OASIS3_data_files/scans/pychometrics-Form_C1__Cognitive_Assessments/resources/csv/files/OASIS3_UDSc1_cognitive_assessments.csv'
 PATH.OASIS.SUBS <- '../../subject_ids/oasis_subjects.csv'
 PATH.PACC.SCRIPT <- '../../scripts/pacc.R'
+PATH.FS <- '../../rawdata/oasis_freesurfer.csv'
 
 # === Load tau ROI data =============
 
@@ -116,7 +117,8 @@ df <- left_join(df, clinical.df.proc, by='Subject') %>%
   mutate(TauClinicalDiff = abs(Session - SessionCDR)) %>%
   group_by(Subject) %>%
   slice_min(TauClinicalDiff, with_ties = F) %>%
-  mutate(CDR = ifelse(TauClinicalDiff > 365, NA, CDR))
+  mutate(CDR = ifelse(TauClinicalDiff > 365, NA, CDR)) %>%
+  ungroup()
 
 # === Add Demographics ==========
 
@@ -143,7 +145,8 @@ mmse <- mmse %>%
 df <- left_join(df, mmse, by='Subject') %>%
   mutate(TauMMSEDiff = abs(Session - SessionMMSE)) %>%
   group_by(Subject) %>%
-  slice_min(TauMMSEDiff, with_ties = F)
+  slice_min(TauMMSEDiff, with_ties = F) %>%
+  ungroup()
 
 # === Add neuropsych ==========
 
@@ -157,7 +160,8 @@ nps <- nps %>%
 df <- left_join(df, nps, by='Subject') %>%
   mutate(TauNPSDiff = abs(Session - SessionNeuroPsych)) %>%
   group_by(Subject) %>%
-  slice_min(TauNPSDiff, with_ties = F)
+  slice_min(TauNPSDiff, with_ties = F) %>%
+  ungroup()
 
 bad.nps <- (df$TauNPSDiff > 365) | (is.na(df$TauNPSDiff))
 df[bad.nps, c('srtfree', 'MEMUNITS', 'digsym', 'ANIMALS', 'tmb')] <- NA
@@ -189,6 +193,85 @@ joiner <- tau.rois[, c("Subject", cols, 'PET_fSUVR_TOT_CORTMEAN')]
 colnames(joiner) <- c("Subject", converter$ADNI, 'TotalCtxTauMean')
 
 df <- left_join(df, joiner, by='Subject')
+
+# === add Volumes =======
+
+# read volumes
+volume.df <-  read.csv(PATH.FS)
+all.cols <- colnames(volume.df)
+vol.cols <- all.cols[str_detect(all.cols, '^(lh|rh).*_volume$')]
+
+vol.edit <- volume.df[, c('FS_FSDATA.ID', vol.cols)]
+colnames(vol.edit) <- c('FSId', toupper(vol.cols))
+
+df <- left_join(df, vol.edit, by='FSId')
+
+# === add Braak regions ======
+
+volume.weighted.mean <- function(pet.data, vol.data, search.columns) {
+  
+  pattern <- paste(search.columns, collapse='|')
+  pet.cols <- colnames(pet.data)[str_detect(colnames(pet.data), pattern)]
+  vol.cols <- colnames(vol.data)[str_detect(colnames(vol.data), pattern)]
+  
+  pet.data <- pet.data[, pet.cols]
+  vol.data <- vol.data[, vol.cols]
+  # print(dim(pet.data))
+  
+  volumes.norm <- vol.data / rowSums(vol.data)
+  pet.norm <- pet.data * volumes.norm
+  result <- rowSums(pet.norm)
+  
+  return(result)
+}
+
+braak1.regs <- c('ENTORHINAL')
+
+braak34.regs <- c('PARAHIPPOCAMPAL',
+                  'FUSIFORM',
+                  'LINGUAL',
+                  'AMYGDALA',
+                  'MIDDLETEMPORAL',
+                  'CAUDALANTERIORCINGULATE',
+                  'ROSTRALANTERIORCINGULATE',
+                  'POSTERIORCINGULATE',
+                  'ISTHMUSCINGULATE',
+                  'INSULA',
+                  'INFERIORTEMPORAL',
+                  'TEMPORALPOLE')
+
+braak56.regs <- c('SUPERIORFRONTAL',
+                  'LATERALORBITOFRONTAL',
+                  'MEDIALORBITOFRONTAL',
+                  'FRONTALPOLE',
+                  'CAUDALMIDDLEFRONTAL',
+                  'ROSTRALMIDDLEFRONTAL',
+                  'PARSOPERCULARIS',
+                  'PARSORBITALIS',
+                  'PARSTRIANGULARIS',
+                  'LATERALOCCIPITAL',
+                  'SUPRAMARGINAL',
+                  'INFERIORPARIETAL',
+                  'SUPERIORTEMPORAL',
+                  'SUPERIORPARIETAL',
+                  'PRECUNEUS',
+                  'BANKSSTS',
+                  'TRANSVERSETEMPORAL',
+                  'PERICALCARINE',
+                  'POSTCENTRAL',
+                  'CUNEUS',
+                  'PRECENTRAL',
+                  'PARACENTRAL')
+
+df.pet <- df %>%
+  select(matches('_SUVR'))
+df.vol <- df %>%
+  select(matches('_volume'))
+
+df$BRAAK1_SUVR <- volume.weighted.mean(df.pet, df.vol, braak1.regs)
+df$BRAAK34_SUVR <- volume.weighted.mean(df.pet, df.vol, braak34.regs)
+df$BRAAK56_SUVR <- volume.weighted.mean(df.pet, df.vol, braak56.regs)
+
 
 # === Add groups =============
 
