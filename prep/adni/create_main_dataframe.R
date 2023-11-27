@@ -29,11 +29,78 @@ ctx.cols <- ctx.cols[! grepl('UNKNOWN', ctx.cols)]
 vol.cols <- gsub('SUVR', 'VOLUME', ctx.cols)
 
 df <- tau.adni %>%
-  select(RID, EXAMDATE, all_of(ctx.cols), all_of(vol.cols), VISCODE, INFERIORCEREBELLUM_SUVR,
-         BRAAK1_SUVR, BRAAK34_SUVR, BRAAK56_SUVR, META_TEMPORAL_SUVR) %>%
+  select(RID, EXAMDATE, all_of(ctx.cols), all_of(vol.cols), VISCODE,
+         INFERIORCEREBELLUM_SUVR,META_TEMPORAL_SUVR) %>%
   rename(DateTau = EXAMDATE) %>%
   mutate(DateTau = as_datetime(ymd(DateTau)),
          ScanIndex = 1:n())
+
+# === add Braak regions ============
+
+# these are manually computed so the same approach can be applied in OASIS
+volume.weighted.mean <- function(pet.data, vol.data, search.columns) {
+  
+  pattern <- paste(search.columns, collapse='|')
+  pet.cols <- colnames(pet.data)[str_detect(colnames(pet.data), pattern)]
+  vol.cols <- colnames(vol.data)[str_detect(colnames(vol.data), pattern)]
+  
+  pet.data <- pet.data[, pet.cols]
+  vol.data <- vol.data[, vol.cols]
+  # print(dim(pet.data))
+  
+  volumes.norm <- vol.data / rowSums(vol.data)
+  pet.norm <- pet.data * volumes.norm
+  result <- rowSums(pet.norm)
+  
+  return(result)
+}
+
+braak1.regs <- c('ENTORHINAL')
+
+braak34.regs <- c('PARAHIPPOCAMPAL',
+                  'FUSIFORM',
+                  'LINGUAL',
+                  'AMYGDALA',
+                  'MIDDLETEMPORAL',
+                  'CAUDALANTERIORCINGULATE',
+                  'ROSTRALANTERIORCINGULATE',
+                  'POSTERIORCINGULATE',
+                  'ISTHMUSCINGULATE',
+                  'INSULA',
+                  'INFERIORTEMPORAL',
+                  'TEMPORALPOLE')
+
+braak56.regs <- c('SUPERIORFRONTAL',
+                  'LATERALORBITOFRONTAL',
+                  'MEDIALORBITOFRONTAL',
+                  'FRONTALPOLE',
+                  'CAUDALMIDDLEFRONTAL',
+                  'ROSTRALMIDDLEFRONTAL',
+                  'PARSOPERCULARIS',
+                  'PARSORBITALIS',
+                  'PARSTRIANGULARIS',
+                  'LATERALOCCIPITAL',
+                  'SUPRAMARGINAL',
+                  'INFERIORPARIETAL',
+                  'SUPERIORTEMPORAL',
+                  'SUPERIORPARIETAL',
+                  'PRECUNEUS',
+                  'BANKSSTS',
+                  'TRANSVERSETEMPORAL',
+                  'PERICALCARINE',
+                  'POSTCENTRAL',
+                  'CUNEUS',
+                  'PRECENTRAL',
+                  'PARACENTRAL')
+
+df.pet <- df %>%
+  select(matches('_SUVR'))
+df.vol <- df %>%
+  select(matches('_VOLUME'))
+
+df$BRAAK1_SUVR <- volume.weighted.mean(df.pet, df.vol, braak1.regs)
+df$BRAAK34_SUVR <- volume.weighted.mean(df.pet, df.vol, braak34.regs)
+df$BRAAK56_SUVR <- volume.weighted.mean(df.pet, df.vol, braak56.regs)
 
 # === normalize tau columns ===========
 
