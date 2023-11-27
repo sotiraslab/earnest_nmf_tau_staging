@@ -27,15 +27,24 @@ source(PATH.SCRIPT.STAGING)
 
 stage.order <- read.csv(PATH.ADNI.ORDER)$Region
 
+# New staging
+# see bootstrapping of W score data for stage definition
 bin.w <- df %>%
   dplyr::select(contains('.WScore')) %>%
   mutate(across(.fns=function(x) ifelse(x >= 2.5, 1, 0)))
-
 colnames(bin.w) <- gsub('.WScore', '', colnames(bin.w))
 bin.w <- bin.w[, stage.order]
-
-# see bootstrapping of W score data for stage definition
 df$PTCStage <- assign.stages(bin.w, stage.order, c(1, 2, 2, 2, 3, 3, 4, 4), p='any', atypical = 'NS')
+
+# Braak staging
+bin.w <- df %>%
+  dplyr::select(contains('.W') & contains("BRAAK")) %>%
+  mutate(across(.fns=function(x) ifelse(x >= 2.5, 1, 0)))
+colnames(bin.w) <- gsub('.W', '', colnames(bin.w))
+df <- df %>%
+  mutate(BraakStage = assign.stages(bin.w, colnames(bin.w), c(1, 2, 3), p='any', atypical = 'NS'),
+         BraakStage = recode(BraakStage, '1'='I', '2'='III/IV', '3'='V/VI'),
+         BraakStage = factor(BraakStage, levels=c('0', 'I', 'III/IV', 'V/VI', 'NS')))
 
 df.all <- df %>%
   arrange(RID, DateTau) %>%
@@ -52,6 +61,7 @@ df <- df.all %>%
 # define colors
 stage.colors <- c('0' = 'white', '1'= '#009E73', '2' = '#F0E442', '3' = '#E69F00', '4' = '#D55E00',
                   'NS' = 'gray')
+braak.colors <- c('0' = 'white', '1'= '#009E73','2' = '#E69F00', '3' = '#D55E00', 'NS' = 'gray')
 
 # load plotting function
 source(PATH.SCRIPT.BARPLOT)
@@ -60,14 +70,15 @@ source(PATH.SCRIPT.BARPLOT)
 
 cdr.colors = c('0.0'='white', '0.5'='#0072B2', '1.0+'='#CC79A7')
 
+# new staging
 stacked.barplot(df, 'PTCStage', 'CDRBinned', colors=cdr.colors) +
   xlab('Stage') +
   guides(fill=guide_legend(title='CDR'))
-
 ggsave('adni_cdr_bar.png', width=6, height=8)
-
 data <- stacked.barplot(df, 'PTCStage', 'CDRBinned', return.data = T)
 write.csv(data, 'adni_cdr_bar.csv')
+
+# braak staging
 
 # ==== Binned Centiloid ========
 

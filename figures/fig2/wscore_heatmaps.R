@@ -67,7 +67,7 @@ colnames(adni.braak.predicts) <- paste(colnames(adni.braak.predicts), '.W', sep=
 
 save.adni <- cbind(adni, adni.predicts, adni.braak.predicts)
 path.out <- '../../derivatives/adni/data_with_wscores.csv'
-write.csv(adni.with.w, path.out, quote=F, na='', row.names=F)
+write.csv(save.adni, path.out, quote=F, na='', row.names=F)
 
 # ADNI - Heatmap -------
 
