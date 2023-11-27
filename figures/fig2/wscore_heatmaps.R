@@ -31,6 +31,7 @@ source(PATH.WSCORE.SCRIPT)
 
 comp.names.short <-  read.csv(PATH.PTC.NAMES)$Component
 comp.names <- paste('Cmp.', comp.names.short, sep='')
+braak.names <- c('BRAAK1_SUVR', 'BRAAK34_SUVR', 'BRAAK56_SUVR')
 
 w.adni <- repeated.wscore.train(control.data = adni.control,
                                 y = comp.names,
@@ -46,6 +47,25 @@ adni.predicts <- repeated.wscore.predict(w.adni, adni)
 colnames(adni.predicts) <- paste(colnames(adni.predicts), '.WScore', sep='')
 adni.with.w <- cbind(adni, adni.predicts)
 
+# ADNI - Braak W scores -------
+
+braak.names <- c('BRAAK1_SUVR', 'BRAAK34_SUVR', 'BRAAK56_SUVR')
+
+w.adni.braak <- repeated.wscore.train(control.data = adni.control,
+                                      y = braak.names,
+                                      covariates = c('Age', 'Gender'),
+                                      match.continuous =  c("Age", "CorticalTauAverage"),
+                                      match.categorical = c("Gender"),
+                                      portion.train = 0.8,
+                                      repeats = 200, 
+                                      seed = T)
+
+adni.braak.predicts <- repeated.wscore.predict(w.adni.braak, adni)
+colnames(adni.braak.predicts) <- paste(colnames(adni.braak.predicts), '.W', sep='')
+
+# ADNI - Save -------
+
+save.adni <- cbind(adni, adni.predicts, adni.braak.predicts)
 path.out <- '../../derivatives/adni/data_with_wscores.csv'
 write.csv(adni.with.w, path.out, quote=F, na='', row.names=F)
 
@@ -116,10 +136,29 @@ w.oasis <- repeated.wscore.train(control.data = oasis.control,
 # save data with W scores
 oasis.predicts <- repeated.wscore.predict(w.oasis, oasis)
 colnames(oasis.predicts) <- paste(colnames(oasis.predicts), '.WScore', sep='')
-oasis.with.w <- cbind(oasis, oasis.predicts)
 
+# OASIS - Braak W scores -------
+
+braak.names <- c('BRAAK1_SUVR', 'BRAAK34_SUVR', 'BRAAK56_SUVR')
+braak.control.oasis <- oasis.control %>%
+  drop_na(all_of(braak.names))
+  
+w.oasis.braak <- repeated.wscore.train(control.data = braak.control.oasis,
+                                       y = braak.names,
+                                       covariates = c('Age', 'Gender'),
+                                       match.continuous =  c("Age", "TotalCtxTauMean"),
+                                       match.categorical = c("Gender"),
+                                       portion.train = 0.8,
+                                       repeats = 200, 
+                                       seed = T)
+
+oasis.braak.predicts <- repeated.wscore.predict(w.oasis.braak, oasis)
+colnames(oasis.braak.predicts) <- paste(colnames(oasis.braak.predicts), '.W', sep='')
+
+# OASIS - Save -------
+save.oasis <- cbind(oasis, oasis.predicts, oasis.braak.predicts)
 path.out <- '../../derivatives/oasis3/data_with_wscores.csv'
-write.csv(oasis.with.w, path.out, quote=F, na='', row.names=F)
+write.csv(save.oasis, path.out, quote=F, na='', row.names=F)
 
 # OASIS - Heatmap -------
 
