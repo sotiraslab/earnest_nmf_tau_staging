@@ -51,7 +51,10 @@ cdr.merged <- left_join(df, cdr.oasis, by='Subject') %>%
          CDR0.5Event = ifelse(CDR.Long >= 0.5, 1, 0))
 
 # see supplement for plot with NS included
-cdr.merged <- filter(cdr.merged, PTCStage != 'NS')
+cdr.merged.ptc <- filter(cdr.merged, PTCStage != 'NS')
+cdr.merged.braak <- filter(cdr.merged, BraakStage != 'NS',
+                           ! is.na(BraakStage),
+                           BraakStage != '')
 
 # print subjects
 unique.subs <- group_by(cdr.merged, Subject) %>%
@@ -64,7 +67,7 @@ table(unique.subs$PTCStage)
 colors = c('0' = '#0072B2', '1'= '#009E73', '2' = '#F0E442', '3' = '#E69F00', '4' = '#D55E00', 'NS' = 'gray')
 
 # eight stage group
-survfit2(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged) %>% 
+survfit2(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged.ptc) %>% 
   ggsurvfit(linetype_aes = T, size=1.5) +
   labs(
     x = "Days",
@@ -77,13 +80,11 @@ survfit2(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged) %>%
   theme(text = element_text(size=20),
         legend.position = 'bottom')
 
-fit <- surv_fit(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged)
-posthoc <- pairwise_survdiff(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged)
+fit <- surv_fit(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged.ptc)
+posthoc <- pairwise_survdiff(Surv(Ticker, CDR1.0Event) ~ PTCStage, data=cdr.merged.ptc)
 ggsave('oasis_survival_cdr1.png', width=8, height=6)
 
 surv_pvalue(fit)
-
-# ==========
 
 ps <- posthoc$p.value %>%
   as.data.frame() %>%
@@ -98,3 +99,43 @@ ps <- posthoc$p.value %>%
                           include.lowest = T),
          p.value = round(p.value, 5))
 write.csv(ps, 'SUPPLEMENT_survival_posthoc_oasis3.csv')
+
+# === Survival: CDR 1.0, with NS- BRAAK =======
+
+colors = c('0' = '#0072B2', 'I'= '#009E73', 'III' = '#F0E442', 'IV' = '#E69F00', 'V' = '#D55E00',
+           'VI' = '#CC79A7', 'NS' = 'gray')
+
+# eight stage group
+survfit2(Surv(Ticker, CDR1.0Event) ~ BraakStage, data=cdr.merged.braak) %>% 
+  ggsurvfit(linetype_aes = T, size=1.5) +
+  labs(
+    x = "Days",
+    y = "Probability of CDR<1"
+  ) +
+  add_confidence_interval() +
+  scale_color_manual(values=colors) +
+  scale_fill_manual(values=colors) +
+  theme_ggsurvfit_KMunicate() +
+  theme(text = element_text(size=20),
+        legend.position = 'bottom')
+
+fit <- surv_fit(Surv(Ticker, CDR1.0Event) ~ BraakStage, data=cdr.merged.braak)
+posthoc <- pairwise_survdiff(Surv(Ticker, CDR1.0Event) ~ BraakStage, data=cdr.merged.braak)
+ggsave('BRAAK_oasis_survival_cdr1.png', width=8, height=6)
+
+surv_pvalue(fit)
+
+ps <- posthoc$p.value %>%
+  as.data.frame() %>%
+  rownames_to_column('a') %>%
+  pivot_longer(cols = c('0', 'I', 'III', 'IV', 'V'), values_to = 'p.value', names_to = 'b') %>%
+  mutate(comparison = paste(a, b, sep=' vs ')) %>%
+  select(comparison, p.value) %>%
+  filter(! is.na(p.value)) %>%
+  mutate(annotation = cut(p.value,
+                          breaks = c(0, 0.001, 0.01, 0.05, Inf),
+                          labels = c('***', "**", "*", ""),
+                          include.lowest = T),
+         p.value = round(p.value, 5))
+write.csv(ps, 'BRAAK_survival_posthoc_oasis3.csv')
+

@@ -8,7 +8,7 @@ stacked.barplot <- function(df, xcol, ycol, levels=NULL, colors=NULL,
                             return.data = F, dropna = F) {
   
   # create data
-  if (dropna) {)
+  if (dropna) {
     df <- df[! is.na(df[[xcol]]), ]
     df <- df[! is.na(df[[ycol]]), ]
   }
