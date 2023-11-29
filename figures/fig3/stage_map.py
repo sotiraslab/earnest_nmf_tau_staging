@@ -74,6 +74,8 @@ plot_dkt_table_brainspace(dkt_table,
                           screenshot=True,
                           zoom=1.8)
 
+dkt_table.to_csv('../../derivatives/adni/ptc8_stage_assignment.csv')
+
 
 #%%
 # ----------
