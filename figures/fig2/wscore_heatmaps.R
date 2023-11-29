@@ -31,7 +31,7 @@ source(PATH.WSCORE.SCRIPT)
 
 comp.names.short <-  read.csv(PATH.PTC.NAMES)$Component
 comp.names <- paste('Cmp.', comp.names.short, sep='')
-braak.names <- c('BRAAK1_SUVR', 'BRAAK34_SUVR', 'BRAAK56_SUVR')
+
 
 w.adni <- repeated.wscore.train(control.data = adni.control,
                                 y = comp.names,
@@ -48,8 +48,9 @@ colnames(adni.predicts) <- paste(colnames(adni.predicts), '.WScore', sep='')
 adni.with.w <- cbind(adni, adni.predicts)
 
 # ADNI - Braak W scores -------
-
-braak.names <- c('BRAAK1_SUVR', 'BRAAK34_SUVR', 'BRAAK56_SUVR')
+braak.names <- c('BRAAK1_SUVR', 'BRAAK3_SUVR',
+                 'BRAAK4_SUVR', 'BRAAK5_SUVR',
+                 'BRAAK6_SUVR')
 
 w.adni.braak <- repeated.wscore.train(control.data = adni.control,
                                       y = braak.names,
@@ -139,7 +140,9 @@ colnames(oasis.predicts) <- paste(colnames(oasis.predicts), '.WScore', sep='')
 
 # OASIS - Braak W scores -------
 
-braak.names <- c('BRAAK1_SUVR', 'BRAAK34_SUVR', 'BRAAK56_SUVR')
+braak.names <- c('BRAAK1_SUVR', 'BRAAK3_SUVR',
+                 'BRAAK4_SUVR', 'BRAAK5_SUVR',
+                 'BRAAK6_SUVR')
 braak.control.oasis <- oasis.control %>%
   drop_na(all_of(braak.names))
   
