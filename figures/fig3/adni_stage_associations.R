@@ -27,7 +27,7 @@ source(PATH.SCRIPT.STAGING)
 
 stage.order <- read.csv(PATH.ADNI.ORDER)$Region
 
-# New staging
+# PTC staging
 # see bootstrapping of W score data for stage definition
 bin.w <- df %>%
   dplyr::select(contains('.WScore')) %>%

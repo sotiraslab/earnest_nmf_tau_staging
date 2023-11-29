@@ -5,13 +5,18 @@ sh(library(ggplot2))
 sh(library(tidyverse))
 
 stacked.barplot <- function(df, xcol, ycol, levels=NULL, colors=NULL,
-                            return.data = F) {
+                            return.data = F, dropna = F) {
   
   # create data
+  if (dropna) {)
+    df <- df[! is.na(df[[xcol]]), ]
+    df <- df[! is.na(df[[ycol]]), ]
+  }
+  
   plot.data <- df %>%
     group_by_at(c(xcol, ycol)) %>%
     summarise(N=n())
-  
+
   if (! is.null(levels)) {
     plot.data <- filter(plot.data, !!sym(xcol) %in% levels)
   }
