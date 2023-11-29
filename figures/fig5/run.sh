@@ -6,12 +6,6 @@ echo "LOADINGS REGRRESSIONS"
 echo "----------"
 
 echo ""
-echo "Zscoring PTC loadings..."
-SCRIPT="zscore_loadings.R"
-Rscript -e "source('${SCRIPT}', echo=T)"
-echo "Done."
-
-echo ""
 echo "Running Centiloid/loading for ADNI..."
 SCRIPT="adni_centiloid_regression.R"
 Rscript -e "source('${SCRIPT}', echo=T)"

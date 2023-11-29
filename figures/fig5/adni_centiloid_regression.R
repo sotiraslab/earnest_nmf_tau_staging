@@ -4,6 +4,7 @@ sh <- suppressPackageStartupMessages
 
 sh(library(colormap))
 sh(library(ggplot2))
+sh(library(stringr))
 sh(library(tidyverse))
 sh(library(this.path))
 
@@ -13,19 +14,17 @@ setwd(this.dir())
 
 # === Required files =========
 
-PATH.ADNI.ZSCORE <- '../../derivatives/adni/data_loadings_zscore.csv'
+PATH.ADNI.WSCORE <- '../../derivatives/adni/data_with_wscores.csv'
 PATH.ADNI.ORDER <- '../../derivatives/adni/wscore_stage_order.csv'
 
 # === Load Data ========
 
 
-df <- read.csv(PATH.ADNI.ZSCORE) %>%
+df <- read.csv(PATH.ADNI.WSCORE) %>%
   filter(Group == 'TrainingBaseline')
 
-cols <- colnames(df)
-components <- cols[grepl('Cmp', cols)]
-
-nice.names <- gsub('Cmp.', '', components)
+components <- cols[str_detect(cols, 'Cmp.*WScore')]
+nice.names <- str_replace_all(components, 'Cmp.|\\.WScore', '')
 renamer <- nice.names
 names(renamer) <- components
 
@@ -49,7 +48,7 @@ names(colors) <- ordered.nice.names
 ggplot(data=long.centiloid, aes(x=Centiloid, y=AvgSUVR, group=PTC, color=PTC, linetype=PTC)) + 
   geom_smooth(alpha=.3, method='lm') +
   scale_color_manual(values=colors) +
-  ylab('Flortaucipir (Z-score)') +
+  ylab('Flortaucipir (W-score)') +
   theme_light() +
   theme(text = element_text(size=20),
         legend.key.size = unit(2, 'line')) +

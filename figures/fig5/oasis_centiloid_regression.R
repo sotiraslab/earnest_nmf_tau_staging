@@ -9,18 +9,17 @@ sh(library(this.path))
 
 # === Required files =========
 
-PATH.OASIS.ZSCORE <- '../../derivatives/oasis3/data_loadings_zscore.csv'
+PATH.OASIS.WSCORE <- '../../derivatives/oasis3/data_with_wscores.csv'
 PATH.ADNI.ORDER <- '../../derivatives/adni/wscore_stage_order.csv'
 
 # === Load Data ========
 
-df <- read.csv(PATH.OASIS.ZSCORE) %>%
+df <- read.csv(PATH.OASIS.WSCORE) %>%
   filter(Group == 'TrainingSet')
 
 cols <- colnames(df)
-components <- cols[grepl('Cmp', cols)]
-
-nice.names <- gsub('Cmp.', '', components)
+components <- cols[str_detect(cols, 'Cmp.*WScore')]
+nice.names <- str_replace_all(components, 'Cmp.|\\.WScore', '')
 renamer <- nice.names
 names(renamer) <- components
 
