@@ -30,7 +30,7 @@ transitions['perc'] = transitions.groupby('label_from')['n'].transform(lambda x:
 
 tbl = transitions.pivot(index='label_from', columns='label_to', values='perc')
 
-gs = plt.GridSpec(nrows=1, ncols=2, width_ratios=[20, 1], wspace=0)
+gs = plt.GridSpec(nrows=1, ncols=2, width_ratios=[20, 1], wspace=.2)
 
 fig = plt.figure(figsize=(9, 8))
 ax = fig.add_subplot(gs[0])
@@ -62,5 +62,9 @@ r1 = patches.Rectangle((0, 5), width=6, height=1, color='white', fill=False, lw=
 r2 = patches.Rectangle((5, 0), width=1, height=6, color='white', fill=False, lw=5, zorder=1)
 ax.add_patch(r1)
 ax.add_patch(r2)
+
+# label colorbar
+c1.yaxis.set_label_position('left')
+c1.set_ylabel('Observed transitions (%)')
 
 plt.savefig('adni_longitudinal_stage_heatmap.png', dpi=300)
