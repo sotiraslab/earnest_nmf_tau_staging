@@ -176,7 +176,7 @@ df.amyloidpos <- df[! is.na(df$AmyloidPositive) & df$AmyloidPositive, ]
 table(df.amyloidpos$CDR, useNA = 'always')
 
 # corpus callosum & cerebllum are omitted to match ADNI
-pat.inc <- "PET_fSUVR_[LR]_CTX_.*"
+pat.inc <- "(PET_fSUVR_[LR]_CTX_.*)"
 pat.exc <- "CRPCLM|CBLL"
 cols <- colnames(tau.rois)[grepl(pat.inc, colnames(tau.rois), perl = T) &
                            ! grepl(pat.exc, colnames(tau.rois), perl = T)]
@@ -189,8 +189,16 @@ converter <-  data.frame(ADRC=cols, ADNI=adni.rois$Feature)
 tau.rois$Subject <- str_extract(tau.rois$PUP_PUPTIMECOURSEDATA.ID, 'OAS\\d+')
 
 # add total cortical mean for a course tau index
-joiner <- tau.rois[, c("Subject", cols, 'PET_fSUVR_TOT_CORTMEAN')]
-colnames(joiner) <- c("Subject", converter$ADNI, 'TotalCtxTauMean')
+joiner <- tau.rois[, c("Subject", cols, 'PET_fSUVR_TOT_CORTMEAN',
+                       'PET_fSUVR_L_AMYGDALA',
+                       'PET_fSUVR_L_HIPPOCAMPUS',
+                       'PET_fSUVR_R_AMYGDALA',
+                       'PET_fSUVR_R_HIPPOCAMPUS')]
+colnames(joiner) <- c("Subject", converter$ADNI, 'TotalCtxTauMean',
+                      'LEFT_AMYGDALA_SUVR',
+                      'LEFT_HIPPOCAMPUS_SUVR',
+                      'RIGHT_AMYGDALA_SUVR',
+                      'RIGHT_HIPPOCAMPUS_SUVR')
 
 df <- left_join(df, joiner, by='Subject')
 
@@ -200,6 +208,11 @@ df <- left_join(df, joiner, by='Subject')
 volume.df <-  read.csv(PATH.FS)
 all.cols <- colnames(volume.df)
 vol.cols <- all.cols[str_detect(all.cols, '^(lh|rh).*_volume$')]
+vol.cols <- c(vol.cols,
+              'Left.Amygdala_volume',
+              'Left.Hippocampus_volume',
+              'Right.Amygdala_volume',
+              'Right.Hippocampus_volume')
 
 vol.edit <- volume.df[, c('FS_FSDATA.ID', vol.cols)]
 colnames(vol.edit) <- c('FSId', toupper(vol.cols))
@@ -216,7 +229,8 @@ volume.weighted.mean <- function(pet.data, vol.data, search.columns) {
   
   pet.data <- pet.data[, pet.cols]
   vol.data <- vol.data[, vol.cols]
-  # print(dim(pet.data))
+  print(dim(pet.data))
+  print(dim(vol.data))
   
   volumes.norm <- vol.data / rowSums(vol.data)
   pet.norm <- pet.data * volumes.norm
@@ -227,51 +241,54 @@ volume.weighted.mean <- function(pet.data, vol.data, search.columns) {
 
 braak1.regs <- c('ENTORHINAL')
 
-braak34.regs <- c('PARAHIPPOCAMPAL',
-                  'FUSIFORM',
-                  'LINGUAL',
-                  'AMYGDALA',
-                  'MIDDLETEMPORAL',
-                  'CAUDALANTERIORCINGULATE',
-                  'ROSTRALANTERIORCINGULATE',
-                  'POSTERIORCINGULATE',
-                  'ISTHMUSCINGULATE',
-                  'INSULA',
-                  'INFERIORTEMPORAL',
-                  'TEMPORALPOLE')
+braak3.regs <- c('PARAHIPPOCAMPAL',
+                 'FUSIFORM',
+                 'LINGUAL',
+                 'AMYGDALA')
 
-braak56.regs <- c('SUPERIORFRONTAL',
-                  'LATERALORBITOFRONTAL',
-                  'MEDIALORBITOFRONTAL',
-                  'FRONTALPOLE',
-                  'CAUDALMIDDLEFRONTAL',
-                  'ROSTRALMIDDLEFRONTAL',
-                  'PARSOPERCULARIS',
-                  'PARSORBITALIS',
-                  'PARSTRIANGULARIS',
-                  'LATERALOCCIPITAL',
-                  'SUPRAMARGINAL',
-                  'INFERIORPARIETAL',
-                  'SUPERIORTEMPORAL',
-                  'SUPERIORPARIETAL',
-                  'PRECUNEUS',
-                  'BANKSSTS',
-                  'TRANSVERSETEMPORAL',
-                  'PERICALCARINE',
-                  'POSTCENTRAL',
-                  'CUNEUS',
-                  'PRECENTRAL',
-                  'PARACENTRAL')
+braak4.regs <- c('MIDDLETEMPORAL',
+                 'CAUDALANTERIORCINGULATE',
+                 'ROSTRALANTERIORCINGULATE',
+                 'POSTERIORCINGULATE',
+                 'ISTHMUSCINGULATE',
+                 'INSULA',
+                 'INFERIORTEMPORAL',
+                 'TEMPORALPOLE')
+
+braak5.regs <- c('SUPERIORFRONTAL',
+                 'LATERALORBITOFRONTAL',
+                 'MEDIALORBITOFRONTAL',
+                 'FRONTALPOLE',
+                 'CAUDALMIDDLEFRONTAL',
+                 'ROSTRALMIDDLEFRONTAL',
+                 'PARSOPERCULARIS',
+                 'PARSORBITALIS',
+                 'PARSTRIANGULARIS',
+                 'LATERALOCCIPITAL',
+                 'SUPRAMARGINAL',
+                 'INFERIORPARIETAL',
+                 'SUPERIORTEMPORAL',
+                 'SUPERIORPARIETAL',
+                 'PRECUNEUS',
+                 'BANKSSTS',
+                 'TRANSVERSETEMPORAL')
+
+braak6.regs <- c('PERICALCARINE',
+                 'POSTCENTRAL',
+                 'CUNEUS',
+                 'PRECENTRAL',
+                 'PARACENTRAL')
 
 df.pet <- df %>%
   select(matches('_SUVR'))
 df.vol <- df %>%
-  select(matches('_volume'))
+  select(matches('_VOLUME'))
 
 df$BRAAK1_SUVR <- volume.weighted.mean(df.pet, df.vol, braak1.regs)
-df$BRAAK34_SUVR <- volume.weighted.mean(df.pet, df.vol, braak34.regs)
-df$BRAAK56_SUVR <- volume.weighted.mean(df.pet, df.vol, braak56.regs)
-
+df$BRAAK3_SUVR <- volume.weighted.mean(df.pet, df.vol, braak3.regs)
+df$BRAAK4_SUVR <- volume.weighted.mean(df.pet, df.vol, braak4.regs)
+df$BRAAK5_SUVR <- volume.weighted.mean(df.pet, df.vol, braak5.regs)
+df$BRAAK6_SUVR <- volume.weighted.mean(df.pet, df.vol, braak6.regs)
 
 # === Add groups =============
 
