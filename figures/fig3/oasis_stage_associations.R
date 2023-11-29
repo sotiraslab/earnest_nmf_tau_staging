@@ -63,6 +63,35 @@ braak.colors <- c('0' = 'white', 'I'= '#009E73', 'III' = '#F0E442', 'IV' = '#E69
 # load plotting function
 source(PATH.SCRIPT.BARPLOT)
 
+# === compare PTC & Braak assignments ========
+
+tbl.data <- df %>%
+  drop_na(BraakStage)
+
+tbl.data <- as.data.frame(table(tbl.data$PTCStage, tbl.data$BraakStage))
+colnames(tbl.data) <- c('PTCStage', 'BraakStage', 'Count')
+tbl.data$BraakStage <- factor(tbl.data$BraakStage,
+                              levels = c('NS', 'VI', 'V', 'IV', 'III', 'I', '0'))
+tbl.data$Over <- ifelse(tbl.data$Count >= 50, "Y", 'N')
+
+ggplot() +
+  geom_tile(data=tbl.data, aes(x=PTCStage, y=BraakStage, fill=Count)) + 
+  scale_fill_colormap(colormap='freesurface-blue', reverse = T,
+                      limits=c(0, 50),
+                      oob=scales::squish) + 
+  coord_equal() +
+  scale_x_discrete(expand=expansion(mult = c(0, 0))) +
+  scale_y_discrete(expand=expansion(mult = c(0, 0))) + 
+  geom_text(data=tbl.data, aes(x=PTCStage, y=BraakStage, label=Count, color=Over)) +
+  scale_color_manual(values=c('Y'='white', 'N'='black')) +
+  guides(color='none') + 
+  theme(text = element_text(size=15)) + 
+  ylab('Braak Stage') +
+  xlab('PTC Stage')
+
+ggsave('SUPPLEMENT_oasis_ptc_v_braak_staging.png', width = 6, height = 6, units = 'in')
+
+
 # === stage by CDR status =======
 
 df$CDR <- factor(df$CDR, labels=c('0.0', '0.5', '1.0+'))
