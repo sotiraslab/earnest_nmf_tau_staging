@@ -26,10 +26,11 @@ PATH.EXAMDATE.SCRIPT <- '../../scripts/adni_examdate.R'
 tau.adni <- ucberkeleyav1451
 ctx.cols <- colnames(tau.adni)[grepl('CTX_.*_SUVR', colnames(tau.adni), perl=T)]
 ctx.cols <- ctx.cols[! grepl('UNKNOWN', ctx.cols)]
-vol.cols <- gsub('SUVR', 'VOLUME', ctx.cols)
+sbctx.cols <- colnames(tau.adni)[grepl('(AMYGDALA|HIPPOCAMPUS).*_SUVR', colnames(tau.adni), perl=T)]
+vol.cols <- gsub('SUVR', 'VOLUME', c(ctx.cols, sbctx.cols))
 
 df <- tau.adni %>%
-  select(RID, EXAMDATE, all_of(ctx.cols), all_of(vol.cols), VISCODE,
+  select(RID, EXAMDATE, all_of(ctx.cols), all_of(sbctx.cols), all_of(vol.cols), VISCODE,
          INFERIORCEREBELLUM_SUVR,META_TEMPORAL_SUVR) %>%
   rename(DateTau = EXAMDATE) %>%
   mutate(DateTau = as_datetime(ymd(DateTau)),
@@ -46,7 +47,8 @@ volume.weighted.mean <- function(pet.data, vol.data, search.columns) {
   
   pet.data <- pet.data[, pet.cols]
   vol.data <- vol.data[, vol.cols]
-  # print(dim(pet.data))
+  print(dim(pet.data))
+  print(dim(vol.data))
   
   volumes.norm <- vol.data / rowSums(vol.data)
   pet.norm <- pet.data * volumes.norm
@@ -57,11 +59,12 @@ volume.weighted.mean <- function(pet.data, vol.data, search.columns) {
 
 braak1.regs <- c('ENTORHINAL')
 
-braak34.regs <- c('PARAHIPPOCAMPAL',
+braak3.regs <- c('PARAHIPPOCAMPAL',
                   'FUSIFORM',
                   'LINGUAL',
-                  'AMYGDALA',
-                  'MIDDLETEMPORAL',
+                  'AMYGDALA')
+
+braak4.regs <- c('MIDDLETEMPORAL',
                   'CAUDALANTERIORCINGULATE',
                   'ROSTRALANTERIORCINGULATE',
                   'POSTERIORCINGULATE',
@@ -70,7 +73,7 @@ braak34.regs <- c('PARAHIPPOCAMPAL',
                   'INFERIORTEMPORAL',
                   'TEMPORALPOLE')
 
-braak56.regs <- c('SUPERIORFRONTAL',
+braak5.regs <- c('SUPERIORFRONTAL',
                   'LATERALORBITOFRONTAL',
                   'MEDIALORBITOFRONTAL',
                   'FRONTALPOLE',
@@ -86,12 +89,13 @@ braak56.regs <- c('SUPERIORFRONTAL',
                   'SUPERIORPARIETAL',
                   'PRECUNEUS',
                   'BANKSSTS',
-                  'TRANSVERSETEMPORAL',
-                  'PERICALCARINE',
-                  'POSTCENTRAL',
-                  'CUNEUS',
-                  'PRECENTRAL',
-                  'PARACENTRAL')
+                  'TRANSVERSETEMPORAL')
+
+braak6.regs <- c('PERICALCARINE',
+                 'POSTCENTRAL',
+                 'CUNEUS',
+                 'PRECENTRAL',
+                 'PARACENTRAL')
 
 df.pet <- df %>%
   select(matches('_SUVR'))
@@ -99,8 +103,10 @@ df.vol <- df %>%
   select(matches('_VOLUME'))
 
 df$BRAAK1_SUVR <- volume.weighted.mean(df.pet, df.vol, braak1.regs)
-df$BRAAK34_SUVR <- volume.weighted.mean(df.pet, df.vol, braak34.regs)
-df$BRAAK56_SUVR <- volume.weighted.mean(df.pet, df.vol, braak56.regs)
+df$BRAAK3_SUVR <- volume.weighted.mean(df.pet, df.vol, braak3.regs)
+df$BRAAK4_SUVR <- volume.weighted.mean(df.pet, df.vol, braak4.regs)
+df$BRAAK5_SUVR <- volume.weighted.mean(df.pet, df.vol, braak5.regs)
+df$BRAAK6_SUVR <- volume.weighted.mean(df.pet, df.vol, braak6.regs)
 
 # === normalize tau columns ===========
 
@@ -114,8 +120,9 @@ df <- df %>%
 
 df$CorticalTauAverage <- rowMeans(df[, ctx.cols])
 
+ctx.vol.cols <- gsub('SUVR', 'VOLUME', ctx.cols)
 suv <- df[, ctx.cols]
-vol <- df[, vol.cols]
+vol <- df[, ctx.vol.cols ]
 vol <- vol / rowSums(vol)
 suv.weighted <- suv * vol
 df$WeightedCorticalTauAverage <- rowSums(suv.weighted)
