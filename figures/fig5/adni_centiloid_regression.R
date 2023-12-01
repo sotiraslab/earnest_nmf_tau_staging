@@ -23,6 +23,7 @@ PATH.ADNI.ORDER <- '../../derivatives/adni/wscore_stage_order.csv'
 df <- read.csv(PATH.ADNI.WSCORE) %>%
   filter(Group == 'TrainingBaseline')
 
+cols <- colnames(df)
 components <- cols[str_detect(cols, 'Cmp.*WScore')]
 nice.names <- str_replace_all(components, 'Cmp.|\\.WScore', '')
 renamer <- nice.names

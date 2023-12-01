@@ -43,7 +43,7 @@ names(colors) <- ordered.nice.names
 ggplot(data=long.centiloid, aes(x=Centiloid, y=AvgSUVR, group=PTC, color=PTC, linetype=PTC)) + 
   geom_smooth(alpha=.3, method='lm') +
   scale_color_manual(values=colors) +
-  ylab('Flortaucipir (Z-score)') +
+  ylab('Flortaucipir (W-score)') +
   theme_light() +
   theme(text = element_text(size=20),
         legend.key.size = unit(2, 'line')) +
