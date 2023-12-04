@@ -325,13 +325,34 @@ df <- df.gender
 # for computation of PACC, need some neuropsych & ADAS cog Q4
 # see https://adni.bitbucket.io/reference/pacc.html
 
+nps.cols <- c('LIMMTOTAL',
+              'LDELTOTAL',
+              'AVDEL30MIN',
+              'AVTOT1',
+              'AVTOT2',
+              'AVTOT3',
+              'AVTOT4',
+              'AVTOT5',
+              'RAVLT.IMMEDIATE',
+              'DSPANFOR',
+              'DSPANBAC',
+              'TRAASCOR',
+              'TRABSCOR',
+              'CATANIMSC',
+              'CATVEGESC',
+              'BNTTOTAL',
+              'MINTTOTAL')
+
 # 1. Neuropsych battery
 nps <- neurobat %>%
   mutate(DateNeuropsych = ifelse(is.na(EXAMDATE),
                                 get.examdate.from.registry(neurobat),
                                 EXAMDATE),
-         DateNeuropsych = as_datetime(ymd(DateNeuropsych))) %>%
-  select(RID, DateNeuropsych, LDELTOTAL, DIGITSCOR, TRABSCOR)
+         DateNeuropsych = as_datetime(ymd(DateNeuropsych)),
+         BNTTOTAL = as.numeric(BNTTOTAL),
+         CATVEGESC = as.numeric(CATVEGESC)) %>%
+  select(RID, DateNeuropsych, all_of(nps.cols))
+nps$RAVLT.IMMEDIATE.MANUAL <- rowSums(nps[, c('AVTOT1', 'AVTOT2', 'AVTOT3', 'AVTOT4', 'AVTOT5')])
 
 df <- left_join(df, nps, by='RID') %>%
   mutate(DiffTauNPS = as.numeric(abs(difftime(DateTau, DateNeuropsych, units='days')))) %>%
@@ -339,7 +360,7 @@ df <- left_join(df, nps, by='RID') %>%
   slice_min(DiffTauNPS, with_ties = F)
 
 bad.nps <- (df$DiffTauNPS > thr) | (is.na(df$DiffTauNPS))
-df[bad.nps, c('LDELTOTAL', 'DIGITSCOR', 'TRABSCOR')] <- NA
+df[bad.nps, c(nps.cols, 'RAVLT.IMMEDIATE.MANUAL')] <- NA
 
 # 2. ADAS
 adascog <- adas %>%
@@ -444,6 +465,29 @@ df$PACC.ADNI <- compute.pacc(df,
                              cn.mask = df$Group == 'ControlBaseline',
                              higher.better = c(F, T, F, T),
                              min.required = 2)
+
+# === Compute McKay composites =========
+
+# not the pacc, but can still use "compute.pacc" function
+
+df$Composite.MEM <- compute.pacc(df,
+                                 pacc.columns = c('LIMMTOTAL', 'LDELTOTAL', 'RAVLT.IMMEDIATE.MANUAL', 'AVDEL30MIN'),
+                                 cn.mask = df$Group == 'ControlBaseline',
+                                 higher.better = c(T, T, T, T),
+                                 min.required = 2)
+
+df$Composite.EF <- compute.pacc(df,
+                                pacc.columns = c('TRAASCOR', 'TRABSCOR'),
+                                cn.mask = df$Group == 'ControlBaseline',
+                                higher.better = c(F, F),
+                                min.required = 2)
+
+df$Composite.LANG <- compute.pacc(df,
+                                  pacc.columns = c('CATANIMSC', 'BNTTOTAL', 'MINTTOTAL'),
+                                  cn.mask = df$Group == 'ControlBaseline',
+                                  higher.better = c(T, T, T, T),
+                                  min.required = 2)
+
 
 # === Generate subject list =========
 

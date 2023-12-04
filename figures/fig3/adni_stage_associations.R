@@ -4,6 +4,7 @@ sh <- suppressPackageStartupMessages
 
 sh(library(colormap))
 sh(library(ggsignif))
+sh(library(lubridate))
 sh(library(this.path))
 sh(library(tidyverse))
 
