@@ -26,9 +26,7 @@ PATH_PTC_NAMES = f'../../derivatives/adni/names_{K}ptc.csv'
 PATH_NMF_MAT_ADNI = f'../../nmf/adni/results/mat/NumBases{K}.mat'
 PATH_NMF_MAT_OASIS = f'../../nmf/oasis3/results/mat/NumBases{K}.mat'
 PATH_SCRIPTS = '../../scripts'
-
-# matched components are provided in the figS3 directory
-PATH_PTC_MATCH = f'../figS3/adni_v_oasis_compare/matching/Match{K}.mat'
+PATH_PTC_MATCH = f'adni_v_oasis_matching/matching/Match{K}.mat'
 
 # ----------
 # read inputs
