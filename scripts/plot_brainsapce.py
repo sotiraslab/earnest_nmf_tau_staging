@@ -30,6 +30,14 @@ def nmf_component_to_dkt_table(path_mat, component_index, region_names):
 
     return dkt_table
 
+def nmf_winner_take_all_dkt_table(path_mat, region_names):
+    mat = loadmat(path_mat)
+    W = mat['Wnorm']
+    wta = W.argmax(axis=1)
+    dkt_table = pd.DataFrame({'region': region_names, 'value': wta})
+
+    return dkt_table
+
 def get_vtx_data_for_hemi(dkt_table, hemi, aparc_file):
 
     labels, _, names = nib.freesurfer.read_annot(aparc_file)
