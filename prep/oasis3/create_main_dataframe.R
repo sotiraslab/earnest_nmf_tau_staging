@@ -152,8 +152,19 @@ df <- left_join(df, mmse, by='Subject') %>%
 
 nps <- read.csv(PATH.NEUROPSYCH)
 
+nps.cols <- c('LOGIMEM',
+              'MEMUNITS',
+              'digsym',
+              'srtfree',
+              'asscmem',
+              'ANIMALS',
+              'VEG',
+              'tma',
+              'tmb',
+              'bnt')
+
 nps <- nps %>%
-  select(OASISID, days_to_visit, srtfree, MEMUNITS, digsym, ANIMALS, tmb) %>%
+  select(OASISID, days_to_visit, all_of(nps.cols)) %>%
   rename(SessionNeuroPsych = days_to_visit,
          Subject=OASISID)
 
@@ -164,7 +175,7 @@ df <- left_join(df, nps, by='Subject') %>%
   ungroup()
 
 bad.nps <- (df$TauNPSDiff > 365) | (is.na(df$TauNPSDiff))
-df[bad.nps, c('srtfree', 'MEMUNITS', 'digsym', 'ANIMALS', 'tmb')] <- NA
+df[bad.nps, nps.cols] <- NA
 
 # === Add regional tau =========
 
@@ -317,6 +328,28 @@ df$PACC.Original <- compute.pacc(df,
                                  pacc.columns = c('srtfree', 'MEMUNITS', 'digsym', 'MMSE'),
                                  cn.mask <- df$Group == 'ControlSet',
                                  higher.better = c(T, T, T, T))
+
+# === Compute NPS composites =========
+
+# not the pacc, but can still use "compute.pacc" function
+
+df$Composite.MEM <- compute.pacc(df,
+                                 pacc.columns = c('LOGIMEM', 'srtfree', 'asscmem'),
+                                 cn.mask = df$Group == 'ControlSet',
+                                 higher.better = c(T, T, T),
+                                 min.required = 2)
+
+df$Composite.EF <- compute.pacc(df,
+                                pacc.columns = c('tma', 'tmb'),
+                                cn.mask = df$Group == 'ControlSet',
+                                higher.better = c(F, F),
+                                min.required = 2)
+
+df$Composite.LANG <- compute.pacc(df,
+                                  pacc.columns = c('ANIMALS', 'VEG', 'bnt'),
+                                  cn.mask = df$Group == 'ControlSet',
+                                  higher.better = c(T, T, T, T),
+                                  min.required = 2)
 
 # === Generate subject list =========
 

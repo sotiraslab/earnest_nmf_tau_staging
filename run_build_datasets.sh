@@ -90,7 +90,7 @@ echo "Success!"
 
 function callR {
 	SCRIPT=$1
-	COMMAND=(Rscript -e "source('${SCRIPT}', echo=T)")
+	COMMAND=(Rscript ${SCRIPT})
 
 	echo ""
 	echo "Rscript command:"

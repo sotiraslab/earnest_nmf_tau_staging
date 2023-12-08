@@ -466,7 +466,7 @@ df$PACC.ADNI <- compute.pacc(df,
                              higher.better = c(F, T, F, T),
                              min.required = 2)
 
-# === Compute McKay composites =========
+# === Compute NPS composites =========
 
 # not the pacc, but can still use "compute.pacc" function
 
