@@ -12,12 +12,12 @@ Created on Fri Dec  8 15:11:22 2023
 
 import abagen
 import numpy as np
-from neuromaps.nulls import alexander_bloch, vasa
+from neuromaps.nulls import vasa
 from neuromaps.stats import compare_images
 import nibabel as nib
 import pandas as pd
+from scipy.special import comb
 from scipy.io import loadmat
-from statsmodels.stats.multitest import multipletests
 
 # ----------
 # required files
@@ -87,22 +87,70 @@ dkt_labels = dkt_labels[dkt_labels['structure'] == 'cortex']
 
 N_PERM = 10000
 
-rotated = alexander_bloch(df['ADNI'],
-                          atlas='fsaverage',
-                          density='10k',
-                          n_perm=N_PERM,
-                          seed=42,
-                          parcellation=parcellation)
+rotated = vasa(df['ADNI'],
+               atlas='fsaverage',
+               density='10k',
+               n_perm=N_PERM,
+               seed=42,
+               parcellation=parcellation)
 
-def metric(a, b):
-    return 1.0
+def adjusted_rand_index(x, y):
 
-from scipy.spatial.distance import cosine
+    n = len(x)
 
-def myfunc(a, b):
-    return np.float64(cosine(a, b))
+    clusters_x = np.unique(x)
+    clusters_y = np.unique(y)
+    cmat = np.zeros((len(clusters_x), len(clusters_y)))
 
-corr, pval = compare_images(df['ADNI'],
-                            df['OASIS'],
-                            metric = myfunc,
-                            nulls=rotated)
+    for i, xlabel in enumerate(clusters_x):
+        for j, ylabel in enumerate(clusters_y):
+            cmat[i, j] = np.logical_and(x == xlabel, y == ylabel).sum()
+
+    a = cmat.sum(axis=1)
+    b = cmat.sum(axis=0)
+
+    cmat_comb = comb(cmat, 2).sum()
+    a_comb = comb(a, 2).sum()
+    b_comb = comb(b, 2).sum()
+    n_comb = comb(n, 2)
+
+    top = cmat_comb - ((a_comb * b_comb)/n_comb)
+    bot = (0.5 * (a_comb + b_comb)) - ((a_comb * b_comb)/n_comb)
+
+    ari = top/bot
+    return np.float64(ari)
+
+ari, pval, nulls  = compare_images(df['ADNI'],
+                                   df['OASIS'],
+                                   metric = adjusted_rand_index,
+                                   ignore_zero=False,
+                                   nulls=rotated,
+                                   return_nulls=True)
+
+#%% save
+
+string = f'observed ARI = {ari}, p-value = {pval}'
+with open('spintest_results.txt', 'w') as f:
+    f.write(string)
+
+#%% plot
+
+import matplotlib.pyplot as plt
+
+plt.rcParams.update({'font.family':'arial',
+                     'font.size':20})
+
+fig, ax = plt.subplots(figsize=(8, 6))
+
+ax.hist(nulls, edgecolor='k', facecolor='dodgerblue', label='null',
+        linewidth=3)
+ax.axvline(ari, color='red', label='observed', lw=3)
+ax.set_ylabel('Frequency')
+ax.set_xlabel('Adjusted Rand Index')
+# ax.text(ari * 1.001, N_PERM/10, s=f'p = {round(pval, 3)}', color='red', fontsize=18)
+ax.set_xlim(nulls.min() * .995, nulls.max() * 1.1)
+
+ax.legend()
+
+plt.tight_layout()
+fig.savefig('winner_take_all_spintest.png', dpi=300)

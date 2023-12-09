@@ -4,7 +4,7 @@
 # # # # # # # # # # # # # # # #
 
 import abagen
-from neuromaps.nulls import alexander_bloch
+from neuromaps.nulls import vasa
 from neuromaps.stats import compare_images
 import nibabel as nib
 import pandas as pd
@@ -178,12 +178,12 @@ for n, component in enumerate(TEST_COMPONENTS):
             print(f"Skipping gene={gene}, not found in expression data...")
             continue
 
-        rotated = alexander_bloch(components[component],
-                                  atlas='fsaverage',
-                                  density='10k',
-                                  n_perm=N_PERM,
-                                  seed=8 * n + i,
-                                  parcellation=parcellation)
+        rotated = vasa(components[component],
+                       atlas='fsaverage',
+                       density='10k',
+                       n_perm=N_PERM,
+                       seed=8 * n + i,
+                       parcellation=parcellation)
 
         corr, pval = compare_images(components[component],
                                     expression[gene],
