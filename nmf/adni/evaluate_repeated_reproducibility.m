@@ -59,8 +59,9 @@ for i = 1:N
         resSplit1 = load(p1) ;
         resSplit2 = load(p2) ;
         
-        W1 = resSplit1.Wnorm;
-        W2 = resSplit2.Wnorm;
+        % normalize (components sum to 1)
+        W1 = resSplit1.W ./ sum(resSplit1.W, 1);
+        W2 = resSplit2.W ./ sum(resSplit2.W, 1);
         
         % calculate inner products
         inner_product = W1'*W2 ;
@@ -72,10 +73,6 @@ for i = 1:N
         [Matching,~] = Hungarian(dist);
         [~,idx_hug1]=max(Matching,[],2);
     
-        % save correspondences
-        outfile = fullfile(matchdir, sprintf('Match%d.mat', sortedBasisNum(exp)));
-        save(outfile, 'Matching', 'idx_hug1');
-        
         % overlap - hungarian
         overlap{exp} = zeros(sortedBasisNum(exp),1) ;
         for b=1:sortedBasisNum(exp)
