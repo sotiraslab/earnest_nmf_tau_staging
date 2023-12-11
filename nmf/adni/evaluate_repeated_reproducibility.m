@@ -56,23 +56,11 @@ for i = 1:N
         p2 = fullfiles2{exp};
         disp(sprintf('Comparing files: \n  %s\n  %s', p1, p2));
     
-       
         resSplit1 = load(p1) ;
         resSplit2 = load(p2) ;
         
-        % normalize to unit norm
-        wlen1 = sqrt(sum((resSplit1.W).^2)) ;
-        wlen2 = sqrt(sum((resSplit2.W).^2)) ;    
-    
-        if any(wlen1==0)
-            wlen1(wlen1==0) = 1;
-        end
-        W1 = bsxfun(@times,resSplit1.W,1./wlen1) ;
-       
-        if any(wlen2==0)
-            wlen2(wlen2==0) = 1;
-        end
-        W2 = bsxfun(@times,resSplit2.W,1./wlen2) ;
+        W1 = resSplit1.Wnorm;
+        W2 = resSplit2.Wnorm;
         
         % calculate inner products
         inner_product = W1'*W2 ;
@@ -83,10 +71,14 @@ for i = 1:N
         % find correspondences
         [Matching,~] = Hungarian(dist);
         [~,idx_hug1]=max(Matching,[],2);
+    
+        % save correspondences
+        outfile = fullfile(matchdir, sprintf('Match%d.mat', sortedBasisNum(exp)));
+        save(outfile, 'Matching', 'idx_hug1');
         
         % overlap - hungarian
-        overlap{exp} = zeros(length(wlen1),1) ;
-        for b=1:length(wlen1)
+        overlap{exp} = zeros(sortedBasisNum(exp),1) ;
+        for b=1:sortedBasisNum(exp)
             overlap{exp}(b) = inner_product(b,idx_hug1(b));
         end
         
@@ -94,21 +86,9 @@ for i = 1:N
         overlap_best{exp} = max(inner_product,[],2) ;
         
         % also evaluate overlap based on adjusted Rand Index    
-        rowLen1 = sum(W1,2) ;
-        rowLen2 = sum(W2,2) ;
-        
-        if any(rowLen1==0)
-            rowLen1(rowLen1==0) = 1 ;
-        end
-        if any(rowLen2==0)
-            rowLen2(rowLen2==0) = 1 ;
-        end
-        WW1 = bsxfun(@times,(W1'),1./(rowLen1')); WW1=WW1';
-        WW2 = bsxfun(@times,(W2'),1./(rowLen2')); WW2=WW2';
-        
-        [~,clustering1] = max(WW1,[],2);
-        [~,clustering2] = max(WW2,[],2);
-        ARI(exp) = clustering_adjustedRand_fast(clustering1,clustering2);
+        [~,clustering1] = max(W1,[],2);
+        [~,clustering2] = max(W2,[],2);
+        ARI(exp) = adjusted_rand_index(clustering1,clustering2);
     
     end
 
