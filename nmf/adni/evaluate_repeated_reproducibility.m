@@ -64,7 +64,15 @@ for i = 1:N
         W2 = resSplit2.W ./ sum(resSplit2.W, 1);
         
         % calculate inner products
-        inner_product = W1'*W2 ;
+        % different normalization is needed here,
+        % components need to be length 1
+        W1length = sqrt(sum(W1.^2));
+        W1unit = bsxfun(@times,W1,1./W1length) ;
+
+        W2length = sqrt(sum(W2.^2));
+        W2unit = bsxfun(@times,W2,1./W2length) ;
+        
+        inner_product = W1unit'*W2unit ;
         
         % take a distance
         dist = 2*(1 - inner_product) ;
