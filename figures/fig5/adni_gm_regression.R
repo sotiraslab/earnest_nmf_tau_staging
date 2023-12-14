@@ -33,7 +33,7 @@ W <- mat$Wnorm
 regions <- read.csv(PATH.NMF.REGIONS)$Feature
 
 all.cols <- colnames(df)
-vol.cols <- all.cols[grepl('_VOLUME$', all.cols)]
+vol.cols <- all.cols[grepl('CTX_.*_VOLUME$', all.cols, perl = T)]
 
 # checks that the order is good
 vol.cols.strip = gsub('_VOLUME', '', vol.cols)
