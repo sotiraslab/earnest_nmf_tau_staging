@@ -27,57 +27,56 @@ PATH.ADNI.W.ORDER <- '../../derivatives/adni/wscore_stage_order.csv'
 df <- read.csv(PATH.ADNI) %>%
   filter(Group == 'TrainingBaseline')
 
-# === Create amyloid df ========
-
-av45 <- ucberkeleyav45
-fbb <- ucberkeleyfbb
-
 regions <- read.csv(PATH.NMF.REGIONS)$Feature
+ptcs <- read.csv(PATH.ADNI.W.ORDER)$Region
 
-abeta <- df %>%
-  select(RID, AmyloidTracer, DateAmyloid)
+# === preprocess ADNI amyloid data ========
 
-abeta.av45 <- abeta %>%
-  filter(AmyloidTracer == 'AV45')
+av45 <- ucberkeleyav45 %>%
+  select(RID, EXAMDATE, all_of(regions)) %>%
+  rename(DateAmyloid=EXAMDATE) %>%
+  mutate(DateAmyloid = as.character(DateAmyloid))
 
+fbb <- ucberkeleyfbb %>%
+  select(RID, EXAMDATE, all_of(regions)) %>%
+  rename(DateAmyloid=EXAMDATE) %>%
+  mutate(DateAmyloid = as.character(DateAmyloid))
 
+# === Merge into dataset ========
 
-# === Get GM Volume in components ==========
+abeta.av45 <- df %>%
+  filter(AmyloidTracer == 'AV45') %>%
+  select(RID, DateAmyloid) %>%
+  left_join(av45, by = c('RID', 'DateAmyloid'))
+  
+abeta.fbb <- df %>%
+  filter(AmyloidTracer == 'FBB') %>%
+  select(RID, DateAmyloid) %>%
+  left_join(fbb, by = c('RID', 'DateAmyloid'))
 
+abeta.big <- df %>%
+  select(RID, AmyloidTracer, Age, all_of(ptcs)) %>%
+  left_join(rbind(abeta.av45, abeta.fbb), by = c('RID')) %>%
+  arrange(RID)
 
+# === Get amyloid SUVR in components ==========
 
 mat <- readMat(PATH.NMF.8)
 W <- mat$Wnorm
-
-regions <- read.csv(PATH.NMF.REGIONS)$Feature
-
-all.cols <- colnames(df)
-vol.cols <- all.cols[grepl('CTX_.*_VOLUME$', all.cols, perl = T)]
-
-# checks that the order is good
-vol.cols.strip = gsub('_VOLUME', '', vol.cols)
-regions.strip <- gsub('_SUVR', '', regions)
-print(all(regions.strip == vol.cols.strip))
-
-vol.mat <- as.matrix(df[, vol.cols])
-
-project <- vol.mat %*% W
+amy.mat <- as.matrix(abeta.big[, regions])
+project <- amy.mat %*% W
 
 # === Reassign to DF ========
 
-nice.names <-  read.csv(PATH.NMF.8.NAMES)$Component
-nice.names <- paste('Cmp.', nice.names, sep='')
-
-colnames(project) <- paste(nice.names, '.Volume', sep='')
-df <- cbind(df, project)
-
-# === Get staged order of components =======
-
-stage.order <- read.csv(PATH.ADNI.W.ORDER)$Region
+amy.ptcs <- paste(ptcs, '.Amyloid', sep='')
+colnames(project) <- amy.ptcs
+abeta <- abeta.big %>%
+  select(-all_of(regions)) %>%
+  cbind(project)
 
 # === Create holder for all heatmap type results =========
 
-stage.order.nice <- gsub('Cmp.', '', stage.order)
+stage.order.nice <- gsub('Cmp.', '', ptcs)
 
 init.mat <- function() {
   mat <- as.data.frame(matrix(nrow=8, ncol=8))
@@ -96,62 +95,91 @@ melt.mat <- function(mat) {
   return(mat)
 }
 
-# === Select X-sectional data ======
+# === wrap method into function ========
 
-df.x <- df %>%
-  filter(Group == 'TrainingBaseline')
 
-# === XSect tau vs xsect GM ==========
-
-rs <- init.mat()
-ps <- init.mat()
-
-for (i in 1:length(stage.order)) {
-  for (j in 1:length(stage.order)) {
+amy.tau.heatmap <- function(data, saveplot=NULL, savestats=NULL,
+                            xlab = 'Amyloid-PET (SUVR)') {
+  rs <- init.mat()
+  ps <- init.mat()
+  
+  for (i in 1:length(ptcs)) {
+    for (j in 1:length(ptcs)) {
+      
+      suvr <- ptcs[i]
+      amy <- paste(ptcs[j], '.Amyloid', sep='')
+      corr <- pcor.test(data[[suvr]], data[[amy]], list(data$Age))
+      rs[i, j] <- corr$estimate
+      ps[i, j] <- corr$p.value
+      
+    }
+  }
+  
+  bup <- rs
+  rs <- melt.mat(rs)
+  ps <- melt.mat(ps)
+  ps$value <- p.adjust(ps$value, method='fdr')
+  
+  rs.plot <- rs[ps$value <= 0.05, ]
+  
+  ggplot() + 
+    geom_tile(data=rs.plot, aes(x=component2, y=component1, fill=value)) + 
+    coord_equal() +
+    theme_classic() + 
+    theme(axis.text.x = element_text(angle=45, hjust=1),
+          text = element_text(size=15),
+          axis.line.x = element_blank(),
+          axis.line.y = element_blank(),
+          axis.ticks.x = element_blank(),
+          axis.ticks.y = element_blank()) +
+    scale_fill_colormap(colormap = 'bathymetry') +
+    ylab('Flortaucipir  (SUVR)') +
+    xlab(xlab) +
+    labs(fill='Pearson R')
+  
+  if (! is.null(saveplot)) {
+    ggsave(saveplot, width=8, height=8)
+  }
+  
+  if (! is.null(savestats)) {
+    stats.df <- rs
+    colnames(stats.df) <- c('regionFTP', 'regionAmy', 'R')
+    stats.df <- stats.df %>%
+      mutate(p.value = round(ps$value, 7),
+             annotation = cut(p.value,
+                              breaks = c(0, 0.001, 0.01, 0.05, Inf),
+                              labels = c('***', "**", "*", ""),
+                              include.lowest = T),
+             R = round(R, 3))
     
-    suvr <- stage.order[i]
-    gm <- paste(stage.order[j], '.Volume', sep='')
-    corr <- pcor.test(df.x[[suvr]], df.x[[gm]], list(df.x$Age))
-    rs[i, j] <- corr$estimate
-    ps[i, j] <- corr$p.value
+    write.csv(stats.df, savestats)
     
   }
 }
 
-bup <- rs
-rs <- melt.mat(rs)
-ps <- melt.mat(ps)
-ps$value <- p.adjust(ps$value, method='fdr')
+# ==============
 
-rs.plot <- rs[ps$value <= 0.05, ]
+amy.tau.heatmap(abeta,
+                saveplot = 'adni_all_data_heatmap.png',
+                savestats = 'adni_all_data_stats.csv',
+                xlab = 'Amyloid-PET (SUVR)')
 
-ggplot() + 
-  geom_tile(data=rs.plot, aes(x=component2, y=component1, fill=value)) + 
-  coord_equal() +
-  theme_classic() + 
-  theme(axis.text.x = element_text(angle=45, hjust=1),
-        text = element_text(size=15),
-        axis.line.x = element_blank(),
-        axis.line.y = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.ticks.y = element_blank()) +
-  scale_fill_colormap(colormap = 'inferno', reverse = T) +
-  ylab('Flortaucipir  (SUVR)') +
-  xlab(expression(paste('Gray Matter Volume ', (mm^3)))) +
-  labs(fill='Pearson R')
+amy.tau.heatmap(filter(abeta, AmyloidTracer == 'AV45'),
+                saveplot = 'adni_av45_heatmap.png',
+                savestats = 'adni_av45_stats.csv',
+                xlab = 'Florbetapir (SUVR)')
 
-ggsave('adni_gm_regression.png', width=8, height=8)
+amy.tau.heatmap(filter(abeta, AmyloidTracer == 'FBB'),
+                saveplot = 'adni_fbb_heatmap.png',
+                savestats = 'adni_fbb_stats.csv',
+                xlab = 'Florbetaben (SUVR)')
 
-# === Save stats ==========
+# ==========
 
-stats.df <- rs
-colnames(stats.df) <- c('regionFTP', 'regionGM', 'R')
-stats.df <- stats.df %>%
-  mutate(p.value = round(ps$value, 7),
-         annotation = cut(p.value,
-                          breaks = c(0, 0.001, 0.01, 0.05, Inf),
-                          labels = c('***', "**", "*", ""),
-                          include.lowest = T),
-         R = round(R, 3))
-
-write.csv(stats.df, 'SUPPLEMENT_gm_correlations_adni.csv')
+# x <- 'Cmp.MedialTemporal'
+# 
+# plot(abeta$Cmp.RightParietalTemporal.Amyloid, abeta[[x]])
+# abline(lm(abeta[[x]] ~ abeta$Cmp.RightParietalTemporal.Amyloid))
+# 
+# plot(abeta$Cmp.LeftParietalTemporal.Amyloid, abeta[[x]])
+# abline(lm(abeta[[x]] ~ abeta$Cmp.LeftParietalTemporal.Amyloid))
