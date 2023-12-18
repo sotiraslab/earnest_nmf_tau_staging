@@ -12,6 +12,7 @@ Created on Mon Mar 20 10:09:12 2023
 
 import sys
 
+import matplotlib as mpl
 import numpy as np
 import pandas as pd
 from scipy.io import loadmat
@@ -45,6 +46,31 @@ sys.path.append(PATH_SCRIPTS)
 from plot_brainsapce import nmf_winner_take_all_dkt_table, plot_dkt_table_brainspace
 
 # ----------
+# colormap
+# ----------
+
+def get_eighth(n):
+    return np.arange(n*32, (n*32) + 32)
+
+# create colormap
+colors = np.zeros((256, 4))
+colors[get_eighth(0), :] = [255,  58,  58, 255]
+colors[get_eighth(1), :] = [252, 149,  59, 255]
+colors[get_eighth(2), :] = [255, 232,  30, 255]
+colors[get_eighth(3), :] = [ 73, 212,  64, 255]
+colors[get_eighth(4), :] = [ 52, 236, 230, 255]
+colors[get_eighth(5), :] = [ 14, 113, 189, 255]
+colors[get_eighth(6), :] = [145,  35, 209, 255]
+colors[get_eighth(7), :] = [142,  96,  61, 255]
+colors /= 255
+cmap = mpl.colors.ListedColormap(colors, name='stages')
+
+if 'stages' in list(mpl.colormaps.keys()):
+    mpl.colormaps.unregister('stages')
+    
+mpl.colormaps.register(cmap)
+
+# ----------
 # plot ADNI
 # ----------
 
@@ -53,7 +79,7 @@ dkt_table = nmf_winner_take_all_dkt_table(PATH_NMF_MAT_ADNI,
 plot_dkt_table_brainspace(dkt_table,
                           layer='pial',
                           size=(1600, 300),
-                          cmap='jet',
+                          cmap='stages',
                           nan_color=(0.5, 0.5, 0.5, 1),
                           filename='WTA_ADNI.png',
                           screenshot=True,
@@ -75,7 +101,7 @@ oasis = dkt_table.copy()
 plot_dkt_table_brainspace(dkt_table,
                           layer='pial',
                           size=(1600, 300),
-                          cmap='jet',
+                          cmap='stages',
                           nan_color=(0.5, 0.5, 0.5, 1),
                           filename='WTA_OASIS.png',
                           screenshot=True,
