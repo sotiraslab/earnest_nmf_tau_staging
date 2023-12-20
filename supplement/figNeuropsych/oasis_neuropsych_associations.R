@@ -38,7 +38,9 @@ source(PATH.ANOVA)
 for (y in c('Composite.MEM', 'Composite.EF', 'Composite.LANG')) {
   x = 'PTCStage'
   aov.stats <- my.anova(x, y, df)
-  anova.plot(x, y, colors = stage.colors, data = df, sig.y.start = 2)
+  anova.plot(x, y, colors = stage.colors, data = df, sig.y.start = 2) +
+    scale_y_continuous(expand = expansion(add = c(0, 2)),
+                       breaks=c(0, -2.5, -5, -7.5, -10))
   ggsave(sprintf('SUPPLEMENT_oasis3_%s.png', y), width = 6, height = 6, units = 'in')
   write.csv(aov.stats, sprintf('SUPPLEMENT_oasis3_%s.csv', y))
 }
