@@ -50,7 +50,7 @@ stage.heatmap <- function(df, cols=NULL, return.data=F, omit.zero=F) {
 }
 
 stage.heatmap.by <- function(df, by, cols=NULL, cats=NULL, return.data=F, omit.zero=F,
-                             colors=NULL) {
+                             colors=NULL, empty.in.legend=T, empty.name='Negative') {
   
   # set defaults
   if (is.null(cols)) {
@@ -100,7 +100,7 @@ stage.heatmap.by <- function(df, by, cols=NULL, cats=NULL, return.data=F, omit.z
   
   hmap.data <- as.data.frame(binarized.cols.df) %>%
     reshape::melt(id.vars = 'Idx', measure.vars = cols) %>%
-    mutate(variable = factor(variable, levels=ordered.by.sum), !!by := factor(value, labels=c('null', cats)))
+    mutate(variable = factor(variable, levels=ordered.by.sum), !!by := factor(value, labels=c(empty.name, cats)))
   
   # if (is.null(colors)) {
   #   colors = c('0'='white')
@@ -112,7 +112,8 @@ stage.heatmap.by <- function(df, by, cols=NULL, cats=NULL, return.data=F, omit.z
   #   colors = 
   # }
   
-  plotcolors <- list('null'='white')
+  plotcolors <- list()
+  plotcolors[[ empty.name ]] <- 'white'
   if (is.null(colors)) {
     colors <- colormap('viridis', nshades = ncats)
   } 
@@ -120,9 +121,11 @@ stage.heatmap.by <- function(df, by, cols=NULL, cats=NULL, return.data=F, omit.z
     plotcolors[[cats[i]]] <- colors[[i]]
   }
   
+  if (empty.in.legend) breaks <- c(empty.name, cats) else breaks <- cats 
+  
   p <- ggplot() +
     geom_tile(data =hmap.data,  color='black', aes_string(x='variable', y='Idx', fill=by)) +
-    scale_fill_manual(values=plotcolors, breaks=cats) +
+    scale_fill_manual(values=plotcolors, breaks=breaks) +
     geom_text(data=totals, size=3, nudge_y=nrow(df)/80, aes(x=variable, y=Idx, label=value)) +
     theme_classic() +
     theme(line=element_blank(),

@@ -81,12 +81,17 @@ wmat <- ifelse(wmat > thr, 1, 0)
 wdf <- as.data.frame(wmat)
 colnames(wdf) <- comp.names.short
 
-df.plot <- cbind(adni.train[, c('RID', 'CDRBinned')], wdf)
+df.plot <- cbind(adni.train[, c('RID', 'CDRBinned')], wdf) %>%
+  mutate(CDRBinned = recode(CDRBinned,
+                            !!! c('0.0' = 'Tau+, CDR=0',
+                                  '0.5' = 'Tau+, CDR=0.5',
+                                  '1.0+' = 'Tau+, CDR>=1')))
 
 stage.heatmap.by(df.plot, by='CDRBinned',
                  cols=comp.names.short,
-                 cats=c('0.0', '0.5', '1.0+'),
-                 colors=c('#440154FF', '#21908CFF', '#FDE725FF')) + 
+                 cats=c('Tau+, CDR=0', 'Tau+, CDR=0.5', 'Tau+, CDR>=1'),
+                 colors=c('#440154FF', '#21908CFF', '#FDE725FF'),
+                 empty.name = 'Tau-') + 
   theme(axis.text.x = element_text(size=10, angle=45, hjust=1, vjust = 1.15,
                                    margin = margin(t = -15, r = 0, b = 0, l = 100)),
         axis.text.y = element_blank(),
@@ -95,10 +100,10 @@ stage.heatmap.by(df.plot, by='CDRBinned',
         legend.position = c(.95, .87),
         legend.justification = c("right", "top"),
         legend.box.just = "right",
-        legend.margin = margin(6, 6, 6, 6)) +
+        legend.margin = margin(6, 6, 6, 6),
+        legend.title = element_blank()) +
   xlab('PTC') +
-  ggtitle('ADNI-ADS PTC Positivity') +
-  guides(fill=guide_legend(title="CDR"))
+  ggtitle('ADNI-ADS PTC Positivity')
 
 ggsave('adni_wscore_heatmap.png', width=4, height=10)
 
@@ -163,7 +168,7 @@ save.oasis <- cbind(oasis, oasis.predicts, oasis.braak.predicts)
 path.out <- '../../derivatives/oasis3/data_with_wscores.csv'
 write.csv(save.oasis, path.out, quote=F, na='', row.names=F)
 
-# OASIS - Heatmap -------
+# OASIS - Heatmap -------_
 
 source(PATH.HEATMAP.SCRIPT)
 
@@ -174,12 +179,13 @@ colnames(wdf) <- comp.names.short
 
 df.plot <- cbind(oasis.train[, c('Subject', 'CDR')], wdf) %>%
   mutate(CDR = as.character(CDR),
-         CDR = recode(CDR, '0'='0.0', '1'='1.0+'))
+         CDR = recode(CDR, '0'='Tau+, CDR=0', '0.5'='Tau+, CDR=0.5', '1'='Tau+, CDR>=1'))
 
 stage.heatmap.by(df.plot, by='CDR',
                  cols=comp.names.short,
-                 cats=c('0.0', '0.5', '1.0+'),
-                 colors=c('#440154FF', '#21908CFF', '#FDE725FF')) + 
+                 cats=c('Tau+, CDR=0', 'Tau+, CDR=0.5', 'Tau+, CDR>=1'),
+                 colors=c('#440154FF', '#21908CFF', '#FDE725FF'),
+                 empty.name = 'Tau-') + 
   theme(axis.text.x = element_text(size=10, angle=45, hjust=1, vjust = 1.15,
                                    margin = margin(t = -15, r = 0, b = 0, l = 100)),
         axis.text.y = element_blank(),
@@ -188,10 +194,10 @@ stage.heatmap.by(df.plot, by='CDR',
         legend.position = c(.95, .87),
         legend.justification = c("right", "top"),
         legend.box.just = "right",
-        legend.margin = margin(6, 6, 6, 6)) +
+        legend.margin = margin(6, 6, 6, 6),
+        legend.title = element_blank()) +
   xlab('PTC') +
-  ggtitle('OASIS3-ADS PTC Positivity') +
-  guides(fill=guide_legend(title="CDR"))
+  ggtitle('OASIS3-ADS PTC Positivity')
 
 ggsave('oasis_wscore_heatmap.png', width=4, height=10)
 
