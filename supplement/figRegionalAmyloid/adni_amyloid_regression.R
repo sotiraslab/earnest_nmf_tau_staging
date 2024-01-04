@@ -4,6 +4,7 @@ sh <- suppressPackageStartupMessages
 
 sh(library(ADNIMERGE))
 sh(library(colormap))
+sh(library(gridExtra))
 sh(library(ppcor))
 sh(library(R.matlab))
 sh(library(stringr))
@@ -174,12 +175,71 @@ amy.tau.heatmap(filter(abeta, AmyloidTracer == 'FBB'),
                 savestats = 'adni_fbb_stats.csv',
                 xlab = 'Florbetaben (SUVR)')
 
-# ==========
+# === investigate L/R asymmetry =======
 
-# x <- 'Cmp.MedialTemporal'
-# 
-# plot(abeta$Cmp.RightParietalTemporal.Amyloid, abeta[[x]])
-# abline(lm(abeta[[x]] ~ abeta$Cmp.RightParietalTemporal.Amyloid))
-# 
-# plot(abeta$Cmp.LeftParietalTemporal.Amyloid, abeta[[x]])
-# abline(lm(abeta[[x]] ~ abeta$Cmp.LeftParietalTemporal.Amyloid))
+scatter.matrix <- function(data, cols, nice.names = NULL) {
+  
+  if (is.null(nice.names)) nice.names <- cols
+  
+  plots <- list()
+  ncols <- length(cols)
+  
+  count <- 1
+  for (i in seq_along(cols)) {
+    for (j in seq_along(cols)) {
+      a <- cols[i]
+      b <- cols[j]
+      
+      laba <- nice.names[i]
+      labb <- nice.names[j]
+      
+      if (i == j) {
+        plot <- ggplot(data = data, mapping = aes(x = !!sym(a))) +
+          geom_density(fill='blue', alpha=.5) + 
+          coord_cartesian(xlim = c(0.95, 3.5)) +
+          xlab(laba) +
+          ylab(labb) +
+          theme_light()
+        
+      } else {
+        plot <- ggplot(data = data, mapping = aes(x = !!sym(a), y = !!sym(b))) +
+          geom_point() + 
+          geom_smooth(method = 'lm', formula = y ~ x) +
+          coord_cartesian(xlim = c(0.95, 3.5),
+                          ylim = c(0.95, 3.5)) +
+          xlab(laba) +
+          ylab(labb) +
+          theme_light()
+      }
+      
+      if (i != 1) plot <- plot + theme(axis.title.y = element_blank()) 
+      if (j != ncols) plot <- plot + theme(axis.title.x = element_blank()) 
+      
+      plots[[count]] <- plot
+      count <- count + 1
+    }
+  }
+  
+  layout.matrix <- matrix(1:(ncols * ncols), nrow = ncols, ncol = ncols)
+  final <- grid.arrange(grobs = plots, layout_matrix = layout.matrix)
+  return(final)
+}
+
+
+# run - AV45
+cols <- c('Cmp.LeftParietalTemporal',
+          'Cmp.RightParietalTemporal',
+          'Cmp.LeftParietalTemporal.Amyloid',
+          'Cmp.RightParietalTemporal.Amyloid')
+nice.names <- c('Tau (Left)',
+                'Tau (Right)',
+                'Amyloid (Left)',
+                'Amyloid (Right)')
+
+plot.av45 <- scatter.matrix(data = filter(abeta, AmyloidTracer == 'AV45'),
+                            cols = cols, nice.names = nice.names)
+ggsave('scatter_matrix_adni_av45.png', plot = plot.av45, width = 8, height = 8, units = 'in')
+
+plot.fbb <- scatter.matrix(data = filter(abeta, AmyloidTracer == 'FBB'),
+                            cols = cols, nice.names = nice.names)
+ggsave('scatter_matrix_adni_fbb.png', plot = plot.fbb, width = 8, height = 8, units = 'in')
