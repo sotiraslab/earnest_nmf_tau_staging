@@ -12,7 +12,7 @@ setwd(this.dir())
 
 # === Required files =========
 
-PATH.DATA <- '../../derivatives/adni/data_with_staging.csv'
+PATH.DATA <- '../../derivatives/oasis3//data_with_staging.csv'
 PATH.PTC.ORDER <- '../../derivatives/adni/wscore_stage_order.csv'
 PATH.WTA <- '../../derivatives/adni/ptc8_winner_take_all.csv'
 PATH.PLOTSCRIPT <- '../../scripts/ggseg_plots.R'
@@ -23,7 +23,7 @@ df <- read.csv(PATH.DATA)
 ptc.order <- read.csv(PATH.PTC.ORDER)$Region
 
 df <- df %>%
-  filter(Group == 'TrainingBaseline') %>%
+  filter(Group == 'TrainingSet') %>%
   mutate(Stageable = ifelse(PTCStage %in% c('1', '2', '3', '4'), 'Stageable', NA),
          Stageable = ifelse(PTCStage == '0', 'Stage 0', Stageable),
          Stageable = ifelse(PTCStage == 'NS', 'NS', Stageable),
@@ -38,7 +38,7 @@ lm.statistics <- function(dependent, adjust.tau = F) {
   m.data <- df[mask.ns | mask.stageable, ]
 
   if (adjust.tau) {
-    fml <- as.formula(sprintf('%s ~ Stageable + CorticalTauAverage', dependent))
+    fml <- as.formula(sprintf('%s ~ Stageable + TotalCtxTauMean', dependent))
   } else {
     fml <- as.formula(sprintf('%s ~ Stageable', dependent))
   }
@@ -58,10 +58,10 @@ lm.statistics <- function(dependent, adjust.tau = F) {
 
 create.stats.table <- function() {
   dependents <- c('Age',
-                  'PACC.ADNI',
+                  'PACC.Original',
                   'MMSE',
                   'Centiloid',
-                  'CorticalTauAverage',
+                  'TotalCtxTauMean',
                   ptc.order,
                   'Laterality')
   
@@ -88,7 +88,7 @@ stat.data <- create.stats.table()
 # ==== Save tables ========
 
 # raw
-write.csv(stat.data, 'adni_stats_raw.csv', quote = F, na = '', row.names = F)
+write.csv(stat.data, 'oasis_stats_raw.csv', quote = F, na = '', row.names = F)
 
 # string version
 str.table <- stat.data %>%
@@ -103,7 +103,7 @@ str.table <- stat.data %>%
          Variable = str_replace(Variable, 'Cmp.', '')) %>%
   select(Variable, Stageable, NonStageable, pvalue)
 
-write.csv(str.table, 'adni_stats_formatted.csv', quote = F, na = '', row.names = F)
+write.csv(str.table, 'oasis_stats_formatted.csv', quote = F, na = '', row.names = F)
 
 # === Plot proportion positive ==========
 
@@ -118,11 +118,13 @@ merger <- data.frame(name = names(ptc.pos), npos = unname(ptc.pos))
 merger$name <- str_replace(merger$name, '.WScore', '')
 plot.data <- left_join(wta, merger, by = 'name')
 
-plot.cortex(plot.data$npos, regions = wta$label, vmin = 0, vmax = 20,
+plot.cortex(plot.data$npos, regions = wta$label, vmin = 0, vmax = max(ptc.pos),
             cm = 'viridis', name = '') +
-  labs(fill='# Positive')
+  labs(fill='# Positive') +
+  scale_fill_colormap(colormap='viridis', limits=c(0, max(ptc.pos)), oob = scales::squish,
+                      breaks = c(0, 2, 4, 6, 8, 10))
   
-ggsave('adni_ns_positivity.png', width = 8, height = 2, units = 'in')
+ggsave('oasis_ns_positivity.png', width = 8, height = 2, units = 'in')
 
 # === Old functions ========
 
