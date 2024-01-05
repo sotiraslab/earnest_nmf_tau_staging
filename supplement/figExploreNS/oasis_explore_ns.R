@@ -126,110 +126,22 @@ plot.cortex(plot.data$npos, regions = wta$label, vmin = 0, vmax = max(ptc.pos),
   
 ggsave('oasis_ns_positivity.png', width = 8, height = 2, units = 'in')
 
-# === Old functions ========
+# === Look at stage criteria met ========
 
-# t.test.statisticss <- function(dependent) {
-#   mask.stageable <- df$Stageable == 'Stageable'
-#   mask.ns <- df$Stageable == 'NS'
-#   mask.0 <- df$Stageable == 'Stage 0'
-#   
-#   data.stageable <- df[mask.stageable, dependent]
-#   data.ns <- df[mask.ns, dependent]
-#   data.0 <- df[mask.0, dependent]
-#   
-#   # 0 vs stageable 
-#   t1 <- t.test(x = data.0,
-#                y = data.stageable,
-#                alternative = 't')
-#   
-#   
-#   # 0 vs NS
-#   t2 <- t.test(x = data.0,
-#                y = data.ns,
-#                alternative = 't')
-#   
-#   # NS vs stageable
-#   t3 <- t.test(x = data.ns,
-#                y = data.stageable,
-#                alternative = 't')
-#   
-#   
-#   vals <- c(dependent,
-#             mean(data.0, na.rm = T),
-#             sd(data.0, na.rm = T),
-#             mean(data.stageable, na.rm = T),
-#             sd(data.stageable, na.rm = T),
-#             mean(data.ns, na.rm = T),
-#             sd(data.ns, na.rm = T),
-#             t1$p.value,
-#             t2$p.value,
-#             t3$p.value)
-#   
-# }
-# 
-# lm.statistics <- function(dependent, adjust.tau = F) {
-#   mask.stageable <- df$Stageable == 'Stageable'
-#   mask.ns <- df$Stageable == 'NS'
-#   mask.0 <- df$Stageable == 'Stage 0'
-#   
-#   # modeling
-#   data1 <- df[mask.0 | mask.stageable, ]
-#   data2 <- df[mask.0 | mask.ns, ]
-#   data3 <- df[mask.ns | mask.stageable, ]
-#   
-#   if (adjust.tau) {
-#     fml <- as.formula(sprintf('%s ~ Stageable + CorticalTauAverage', dependent))
-#   } else {
-#     fml <- as.formula(sprintf('%s ~ Stageable', dependent))
-#   }
-#   
-#   m1 <- lm(fml, data = data1)
-#   m2 <- lm(fml, data = data2)
-#   m3 <- lm(fml, data = data3)
-#   
-#   data.stageable <- df[mask.stageable, dependent]
-#   data.ns <- df[mask.ns, dependent]
-#   data.0 <- df[mask.0, dependent]
-#   
-#   vals <- c(dependent,
-#             mean(data.0, na.rm = T),
-#             sd(data.0, na.rm = T),
-#             mean(data.stageable, na.rm = T),
-#             sd(data.stageable, na.rm = T),
-#             mean(data.ns, na.rm = T),
-#             sd(data.ns, na.rm = T),
-#             summary(m1)$coefficients[2, 4],
-#             summary(m2)$coefficients[2, 4],
-#             summary(m3)$coefficients[2, 4])
-# }
-# 
-# 
-# get.stats <- function() {
-#   dependents <- c('Age',
-#                   'PACC.ADNI',
-#                   'MMSE',
-#                   'Centiloid',
-#                   ptc.order,
-#                   'CorticalTauAverage',
-#                   'Laterality')
-#   
-#   mat <- matrix(NA, nrow = length(dependents), ncol = 10)
-#   t.data <- as.data.frame(mat)
-#   colnames(t.data) <- c('Variable',
-#                         'Stage0.mean',
-#                         'Stage0.sd',
-#                         'Stageable.mean',
-#                         'Stageable.sd',
-#                         'NS.mean',
-#                         'NS.sd',
-#                         'Stage0.vs.Stageable',
-#                         'Stage0.vs.NS',
-#                         'NS.vs.Stageable')
-#   
-#   for (i in seq_along(dependents)) {
-#     dependent <- dependents[i]
-#     t.data[i, ] <- get.stats.for.dependent(dependent)
-#   }
-#   return (t.data)
-# }
+ns <- pos.df
+colnames(ns) <- str_replace(colnames(ns), '.WScore', '')
+ns <- select(ns, all_of(ptc.order))
 
+criteria <- data.frame(
+  rid = df[df$PTCStage == 'NS', 'Subject'],
+  stage1 = ns[, 1],
+  stage2 = apply(ns[, 2:4], 1, any),
+  stage3 = apply(ns[, 5:6], 1, any),
+  stage4 = apply(ns[, 7:8], 1, any)
+)
+
+critera.yes1 <- criteria %>%
+  filter(stage1 == T)
+
+critera.not1 <- criteria %>%
+  filter(stage1 == F)

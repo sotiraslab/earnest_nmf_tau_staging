@@ -124,6 +124,26 @@ plot.cortex(plot.data$npos, regions = wta$label, vmin = 0, vmax = 20,
   
 ggsave('adni_ns_positivity.png', width = 8, height = 2, units = 'in')
 
+# === Look at stage criteria met ========
+
+ns <- pos.df
+colnames(ns) <- str_replace(colnames(ns), '.WScore', '')
+ns <- select(ns, all_of(ptc.order))
+
+criteria <- data.frame(
+  rid = df[df$PTCStage == 'NS', 'RID'],
+  stage1 = ns[, 1],
+  stage2 = apply(ns[, 2:4], 1, any),
+  stage3 = apply(ns[, 5:6], 1, any),
+  stage4 = apply(ns[, 7:8], 1, any)
+)
+
+critera.yes1 <- criteria %>%
+  filter(stage1 == T)
+
+critera.not1 <- criteria %>%
+  filter(stage1 == F)
+
 # === Old functions ========
 
 # t.test.statisticss <- function(dependent) {
