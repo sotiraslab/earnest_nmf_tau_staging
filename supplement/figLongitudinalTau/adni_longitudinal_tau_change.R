@@ -26,15 +26,25 @@ df <- read.csv(PATH.DATA) %>%
   filter(grepl('Training', Group))
 df.bl <- df %>%
   filter(Group == 'TrainingBaseline')
-
 ptc.order <- read.csv(PATH.ORDER)$Region
+
+# === compute uptake in each stage ========
+
+df$Stage1 <- df$Cmp.MedialTemporal
+df$Stage2 <- rowMeans(df[, c('Cmp.LeftParietalTemporal',
+                            'Cmp.RightParietalTemporal',
+                            'Cmp.Precuneus')])
+df$Stage3 <- rowMeans(df[, c('Cmp.LateralFrontal',
+                             'Cmp.Occipital')])
+df$Stage4 <- rowMeans(df[, c('Cmp.Sensorimotor',
+                             'Cmp.Orbitofrontal')])
+
+stage.cols <- c('Stage1', 'Stage2', 'Stage3', 'Stage4')
 
 # ==== longitudinal change in PTC uptake ========
 
-all.cols <- colnames(df)
-
-# # for calculating change like Leuzy et al 2022
-# for (y in ptc.order) {
+# for calculating change like Leuzy et al 2022
+# for (y in stage.cols) {
 #   new.name <- paste(y, '.PercentChange', sep='')
 #   long.data <- df %>%
 #     select(RID, DateTau, Age, !!sym(y), PTCStage) %>%
@@ -47,15 +57,15 @@ all.cols <- colnames(df)
 #            PercentChange = ifelse(is.na(PercentChange), 0, PercentChange)) %>%
 #     group_by(RID) %>%
 #     filter(row_number() == 2)
-#   
+# 
 #   merger <- long.data %>%
 #     select(RID, PercentChange)
 #   colnames(merger) <- c('RID', new.name)
-#   
+# 
 #   df.bl <- left_join(df.bl, merger, by='RID')
 # }
 
-for (y in ptc.order) {
+for (y in stage.cols) {
   long.data <- df %>%
     select(RID, DateTau, Age, !!sym(y), PTCStage) %>%
     group_by(RID) %>%
@@ -86,18 +96,14 @@ for (y in ptc.order) {
 
 # variables
 stages <- c('0', '1', '2', '3', '4', 'NS')
-plot.columns <- paste(ptc.order, '.Slope', sep='')
-colors <- stage.colors <- c('MedialTemporal' = '#009E73',
-                            'LeftParietalTemporal' = '#F0E442',
-                            'RightParietalTemporal' = '#F0E442',
-                            'Precuneus' = '#F0E442',
-                            'LateralFrontal' = '#E69F00',
-                            'Occipital' = '#E69F00',
-                            'Orbitofrontal' = '#D55E00',
-                            'Sensorimotor' = '#D55E00')
+plot.columns <- paste(stage.cols, '.Slope', sep='')
+colors <- stage.colors <- c('Stage1-ROI' = '#009E73',
+                            'Stage2-ROI' = '#F0E442',
+                            'Stage3-ROI' = '#E69F00',
+                            'Stage4-ROI' = '#D55E00')
 
-# ---- statistics vs stage 0 ------
-
+# # ---- statistics vs stage 0 ------
+# 
 compare.stages <- c('2', '3', '4', 'NS')
 compare.ptcs <- plot.columns
 n.tests <- length(compare.stages) * length(compare.ptcs)
@@ -111,13 +117,13 @@ for (i in seq_along(compare.stages)) {
   stage <- compare.stages[i]
   x.data <- filter(df.bl, PTCStage == '0')
   y.data <- filter(df.bl, PTCStage == stage)
-  
+
   for (j in seq_along(compare.ptcs)) {
     ptc <- compare.ptcs[j]
     x <- x.data[[ptc]]
     y <- y.data[[ptc]]
     comparison <- t.test(x, y, alternative = 'less')
-    
+
     row <- (i-1) * length(compare.ptcs) + j
     t.data.vs.0[row, 'StageB'] <- stage
     t.data.vs.0[row, 'PTC'] <- ptc
@@ -125,9 +131,9 @@ for (i in seq_along(compare.stages)) {
     t.data.vs.0[row, 'pval'] <- comparison$p.value
   }
 }
-
-# ---- statistics vs stage previous ------
-
+# 
+# # ---- statistics vs stage previous ------
+# 
 compare.stages <- c('1', '2', '3', '4')
 compare.ptcs <- plot.columns
 n.tests <- length(compare.stages) * length(compare.ptcs)
@@ -142,13 +148,13 @@ for (i in seq_along(compare.stages)) {
   stageA <- as.character(as.integer(stageB) - 1)
   x.data <- filter(df.bl, PTCStage == stageA)
   y.data <- filter(df.bl, PTCStage == stageB)
-  
+
   for (j in seq_along(compare.ptcs)) {
     ptc <- compare.ptcs[j]
     x <- x.data[[ptc]]
     y <- y.data[[ptc]]
     comparison <- t.test(x, y, alternative = 'less')
-    
+
     row <- (i-1) * length(compare.ptcs) + j
     t.data.vs.prev[row, 'StageA'] <- stageA
     t.data.vs.prev[row, 'StageB'] <- stageB
@@ -158,9 +164,9 @@ for (i in seq_along(compare.stages)) {
   }
 }
 
-
-# ---- combine T data -------
-
+# 
+# # ---- combine T data -------
+# 
 t.data.all <- rbind(t.data.vs.prev, t.data.vs.0) %>%
     mutate(pval.correct = p.adjust(pval, method = 'fdr'),
            annotation = cut(
@@ -169,7 +175,7 @@ t.data.all <- rbind(t.data.vs.prev, t.data.vs.0) %>%
              labels = c('***', "**", "*", ""),
              include.lowest = T),
            PTC = str_replace_all(PTC, 'Cmp.|.Slope', ''),
-           ) 
+           )
 
 write.csv(t.data.all, 'longitudinal_tau_t_stats.csv',
           quote = F, na = '', row.names = F)
@@ -180,25 +186,25 @@ write.csv(t.data.all, 'longitudinal_tau_t_stats.csv',
 # bar for each PTC
 
 # plot loop
+example <- plot.columns[1]
 for (stage in stages) {
-  n.stage <- sum(df.bl$PTCStage == stage)
+  n.stage <- sum(df.bl$PTCStage == stage & !is.na(df.bl[[example]]))
   plot.data <- df.bl %>%
-    filter(PTCStage == stage) %>%
+    filter(PTCStage == stage & !is.na(df.bl[[example]])) %>%
     select(all_of(plot.columns)) %>%
-    pivot_longer(everything(), names_to = 'PTC', values_to = 'TauChange') %>%
-    mutate(PTC = str_replace_all(PTC, 'Cmp.|.Slope', ''),
-           PTC = factor(PTC, levels = str_replace_all(ptc.order, 'Cmp.|.Slope', '')))
+    pivot_longer(everything(), names_to = 'PTCStage', values_to = 'TauChange') %>%
+    mutate(PTCStage = str_replace_all(PTCStage, '.Slope', '-ROI'))
 
   # get means by group
-  n.categories <- length(unique(plot.data$PTC))
-  means <- group_by(plot.data, PTC) %>%
+  n.categories <- length(unique(plot.data$PTCStage))
+  means <- group_by(plot.data, PTCStage) %>%
     summarise(Mean = mean(TauChange, na.rm=T)) %>%
     mutate(x=seq(0.5, by=1, length.out=n.categories),
            xend=seq(1.5, by=1, length.out=n.categories))
   
   
   # draw
-  p <- ggplot(data = plot.data, aes(x = PTC, y = TauChange, fill = PTC)) +
+  p <- ggplot(data = plot.data, aes(x = PTCStage, y = TauChange, fill = PTCStage)) +
     scale_fill_manual(values = colors) +
     geom_point(position = position_jitter(width = 0.2, seed=42), shape=21, size=3) +
     geom_segment(data=means, aes(x=x, xend=xend, y=Mean, yend=Mean),
@@ -208,30 +214,31 @@ for (stage in stages) {
           text = element_text(size = 14),
           legend.position = 'none') +
     ylab('Tau Change (SUVR/y)') +
-    ggtitle(sprintf('PTC Stage %s (n=%s)', stage, n.stage)) +
-    coord_cartesian(ylim = c(-0.1, .3), expand = F)
+    ggtitle(sprintf('Stage %s Individuals (n=%s)', stage, n.stage)) +
+    coord_cartesian(ylim = c(-0.1, .3), expand = F) +
+    xlab('ROI')
   
   # add stats
   if (stage != '0') {
     stats <- t.data.all %>%
-      filter(StageB == stage & StageA == '0') 
+      filter(StageB == stage & StageA == '0')
     means$annotation <- stats$annotation
     means$y <- -0.06
     p <- p +
       geom_text(data = means,
-                aes(x = PTC, y = y, label = annotation),
+                aes(x = PTCStage, y = y, label = annotation),
                 size = 10,
                 color = 'blue')
   }
-  
+
   if (stage  %in% c('2', '3', '4')) {
     stats <- t.data.all %>%
-      filter(StageB == stage & StageA == as.character(as.integer(stage) - 1)) 
+      filter(StageB == stage & StageA == as.character(as.integer(stage) - 1))
     means$annotation <- stats$annotation
     means$y <- -0.08
     p <- p +
       geom_text(data = means,
-                aes(x = PTC, y = y, label = annotation),
+                aes(x = PTCStage, y = y, label = annotation),
                 size = 10,
                 color = 'red')
   }
