@@ -63,6 +63,11 @@ sys.path.append(PATH_SCRIPTS)
 
 from plot_brainsapce import plot_dkt_table_brainspace
 
+#%%
+# ----------
+# plot all stages
+# ----------
+
 
 plot_dkt_table_brainspace(dkt_table,
                           layer='pial',
@@ -75,6 +80,41 @@ plot_dkt_table_brainspace(dkt_table,
                           zoom=1.8)
 
 dkt_table.to_csv('../../derivatives/adni/ptc8_stage_assignment.csv')
+
+#%%
+# ----------
+# plot individual stages
+# ----------
+
+stage_colors = [[0, 158, 115, 255],
+                [240, 226, 66, 255],
+                [230, 159, 0, 255],
+                [213, 94, 0, 255]]
+
+for i in [1, 2, 3, 4]:
+    tmp = dkt_table.copy()
+    tmp.loc[tmp['value'] != i, 'value'] = None
+
+    tmp_map = np.zeros((256, 4))
+    tmp_map[:, :] = stage_colors[i-1]
+    tmp_map /= 255
+    tmp_map = mpl.colors.ListedColormap(tmp_map, name=f'stage_{i}')
+
+    try:
+        _ = mpl.colormaps.get_cmap(f'stage_{i}')
+    except ValueError:
+        mpl.colormaps.register(tmp_map)
+
+    plot_dkt_table_brainspace(tmp,
+                              layer='pial',
+                              size=(800, 500),
+                              cmap=f'stage_{i}',
+                              nan_color=(1.0, 1.0, 1.0, 1),
+                              layout_style='grid',
+                              filename=f'stage_map_{i}.png',
+                              screenshot=True,
+                              zoom=1.8)
+
 
 
 #%%
