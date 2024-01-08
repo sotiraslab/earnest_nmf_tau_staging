@@ -7,6 +7,7 @@ ggseg
 ggsignif
 ggsurvfit
 gtools
+lsr
 lubridate
 ppcor
 R.matlab

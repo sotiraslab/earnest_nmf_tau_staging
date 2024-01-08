@@ -155,6 +155,15 @@ write.csv(data, 'BRAAK_oasis_apoe_bar.csv')
 
 # === Chi squared =======
 
+cramers.v <- function(chi) {
+  data <- chi$observed
+  k <- min(nrow(data), ncol(data)) - 1
+  x <- unname(chi$statistic)
+  n <- sum(data)
+  v <- sqrt((x/n) / k)
+  return (v)
+}
+
 # PTC Staging
 chis <- list(
   'cdr' = chisq.test(table(df$PTCStage, df$CDR)),
@@ -167,6 +176,7 @@ chi.df <- sapply(chis, function(x) {
     'p'=round(unname(x$p.value), 3))
 })
 chi.df <- as.data.frame(t(chi.df))
+chi.df$cramerv <- sapply(chis, cramers.v)
 write.csv(chi.df, 'chi_squared_results_oasis3.csv')
 
 # Braak Staging
@@ -181,6 +191,7 @@ chi.df <- sapply(chis, function(x) {
     'p'=round(unname(x$p.value), 3))
 })
 chi.df <- as.data.frame(t(chi.df))
+chi.df$cramerv <- sapply(chis, cramers.v)
 write.csv(chi.df, 'BRAAK_chi_squared_results_oasis3.csv')
 
 # === PACC - PTC staging ===========
@@ -232,6 +243,7 @@ ggplot(data = df, aes(x = PTCStage, y = PACC.Original, fill = PTCStage)) +
 ggsave('oasis_pacc_scatter.png', width=6, height=8)
 
 print(summary(anova))
+print(etaSquared(anova))
 
 # save posthoc stats
 posthoc.res <- posthoc.res %>%
@@ -289,6 +301,7 @@ ggplot(data = df.braak, aes(x = BraakStage, y = PACC.Original, fill = BraakStage
 ggsave('BRAAK_oasis_pacc_scatter.png', width=6, height=8)
 
 print(summary(anova))
+print(etaSquared(anova))
 
 # save posthoc stats
 posthoc.res <- posthoc.res %>%

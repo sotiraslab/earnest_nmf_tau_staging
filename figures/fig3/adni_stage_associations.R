@@ -4,6 +4,7 @@ sh <- suppressPackageStartupMessages
 
 sh(library(colormap))
 sh(library(ggsignif))
+sh(library(lsr))
 sh(library(lubridate))
 sh(library(this.path))
 sh(library(tidyverse))
@@ -160,6 +161,15 @@ write.csv(data, 'BRAAK_adni_apoe_bar.csv')
 
 # === Chi squared =======
 
+cramers.v <- function(chi) {
+  data <- chi$observed
+  k <- min(nrow(data), ncol(data)) - 1
+  x <- unname(chi$statistic)
+  n <- sum(data)
+  v <- sqrt((x/n) / k)
+  return (v)
+}
+
 # ptc staging
 chis <- list(
   'cdr' = chisq.test(table(df$PTCStage, df$CDRBinned)),
@@ -172,6 +182,7 @@ chi.df <- sapply(chis, function(x) {
     'p'=round(unname(x$p.value), 3))
 })
 chi.df <- as.data.frame(t(chi.df))
+chi.df$cramerv <- sapply(chis, cramers.v)
 write.csv(chi.df, 'chi_squared_results_adni.csv')
 
 # braak staging
@@ -186,6 +197,7 @@ chi.df <- sapply(chis, function(x) {
     'p'=round(unname(x$p.value), 3))
 })
 chi.df <- as.data.frame(t(chi.df))
+chi.df$cramerv <- sapply(chis, cramers.v)
 write.csv(chi.df, 'BRAAK_chi_squared_results_adni.csv')
 
 # === PACC - PTC Staging =========
@@ -237,6 +249,7 @@ ggplot(data = df, aes(x = PTCStage, y = PACC.ADNI, fill = PTCStage)) +
 ggsave('adni_pacc_scatter.png', width=6, height=8)
 
 print(summary(anova))
+print(etaSquared(anova))
 
 # save posthoc stats
 posthoc.res <- posthoc.res %>%
@@ -291,6 +304,7 @@ ggplot(data = df, aes(x = BraakStage, y = PACC.ADNI, fill = BraakStage)) +
 ggsave('BRAAK_adni_pacc_scatter.png', width=6, height=8)
 
 print(summary(anova))
+print(etaSquared(anova))
 
 # save posthoc stats
 posthoc.res <- posthoc.res %>%
