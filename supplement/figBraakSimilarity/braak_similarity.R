@@ -141,7 +141,9 @@ plot.data <- sim.mat %>%
   mutate(Braak = str_replace(Braak, 'Braak',''),
          PTC = str_replace(PTC, 'Cmp.', ''),
          Braak = factor(Braak, levels=c('VI', 'V', 'IV', 'III', 'I')),
-         PTC = factor(PTC, levels = str_replace(ptc.order$Region, 'Cmp.', '')))
+         PTC = factor(PTC, levels = str_replace(ptc.order$Region, 'Cmp.', '')),
+         Text = round(Dice, 2),
+         TextColor = Dice >= .75)
 
 plot <- ggplot(plot.data, aes(x = PTC, y = Braak, fill = Dice)) + 
   geom_tile() + 
@@ -150,7 +152,9 @@ plot <- ggplot(plot.data, aes(x = PTC, y = Braak, fill = Dice)) +
   scale_y_discrete(expand=expansion(mult = c(0, 0))) + 
   theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1),
         text = element_text(size=12)) + 
-  scale_fill_colormap(colormap='velocity-blue', limits=c(0, 1))
+  scale_fill_colormap(colormap='velocity-blue', limits=c(0, 1)) +
+  geom_text(aes(x = PTC, y = Braak, label = Text, color = TextColor)) +
+  scale_color_manual(values = c('white', 'black'), guide = 'none')
 
 ggsave(plot = plot, filename = 'braak_ptc_similarity.png', width=8, height=4)
 
@@ -173,7 +177,9 @@ plot.data <- sim.mat %>%
   rownames_to_column('Braak') %>%
   pivot_longer(-Braak, names_to = 'PTCStage', values_to = 'Dice') %>%
   mutate(Braak = str_replace(Braak, 'Braak',''),
-         Braak = factor(Braak, levels=c('VI', 'V', 'IV', 'III', 'I')))
+         Braak = factor(Braak, levels=c('VI', 'V', 'IV', 'III', 'I')),
+         Text = round(Dice, 2),
+         TextColor = Dice >= .75)
 
 plot <- ggplot(plot.data, aes(x = PTCStage, y = Braak, fill = Dice)) + 
   geom_tile() + 
@@ -181,7 +187,9 @@ plot <- ggplot(plot.data, aes(x = PTCStage, y = Braak, fill = Dice)) +
   scale_x_discrete(expand=expansion(mult = c(0, 0))) +
   scale_y_discrete(expand=expansion(mult = c(0, 0))) + 
   theme(text = element_text(size=12)) + 
-  scale_fill_colormap(colormap='velocity-blue', limits=c(0, 1))
+  scale_fill_colormap(colormap='velocity-blue', limits=c(0, 1)) +
+  geom_text(aes(x = PTCStage, y = Braak, label = Text, color = TextColor)) +
+  scale_color_manual(values = c('white', 'black'), guide = 'none')
 
 ggsave(plot = plot, filename = 'braak_newstaging_similarity.png', width=8, height=4)
 
