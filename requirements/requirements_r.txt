@@ -9,6 +9,7 @@ ggsurvfit
 gtools
 lsr
 lubridate
+mclust
 ppcor
 R.matlab
 reshape

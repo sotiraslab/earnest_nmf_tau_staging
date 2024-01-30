@@ -6,6 +6,7 @@ sh(library(colormap))
 sh(library(ggsignif))
 sh(library(gtools))
 sh(library(lubridate))
+sh(library(mclust))
 sh(library(this.path))
 sh(library(tidyverse))
 
@@ -189,6 +190,51 @@ ggplot(data = plot.data, aes(x = threshold, y = PTC,
   xlab('Cutoff (W-score)')
 
 ggsave('staging_sensitivity.png', width = 8, height = 3, units = 'in')
+
+# --- Compare ARIs of staging: ADNI -----------
+
+PATH.SCRIPT.STAGING <- '../../scripts/stage_assigner.R'
+source(PATH.SCRIPT.STAGING)
+stage.order <- paste('Cmp.', ptc.order, sep = '')
+
+bin.w <- df %>%
+  dplyr::select(contains('.WScore')) %>%
+  mutate(across(.fns=function(x) ifelse(x >= 2.5, 1, 0)))
+colnames(bin.w) <- gsub('.WScore', '', colnames(bin.w))
+bin.w <- bin.w[, stage.order]
+
+# a is main staging system described in text
+# b is alternative system that pops up in senstivity analysis, with extra precuneus stage
+# NS is replaced with `999` to keep a consistent type
+adni <- data.frame(a = assign.stages(bin.w, stage.order, c(1, 2, 2, 2, 3, 3, 4, 4), p='any', atypical = 999),
+                   b = assign.stages(bin.w, stage.order, c(1, 2, 2, 3, 4, 4, 5, 5), p='any', atypical = 999))
+adni.nonzero <- adni %>%
+  filter(a != 0,
+         b != 0)
+
+print(sprintf('ARI for two staging systems in ADNI: %s', adjustedRandIndex(adni$a, adni$b)))
+print(sprintf('Omitting stage 0: %s', adjustedRandIndex(adni.nonzero$a, adni.nonzero$b)))
+
+# --- Compare ARIs of staging: OASIS -----------
+
+bin.w <- read.csv('../../derivatives/oasis3/data_with_wscores.csv') %>%
+  filter(Group == 'TrainingSet') %>%
+  dplyr::select(contains('.WScore')) %>%
+  mutate(across(.fns=function(x) ifelse(x >= 2.5, 1, 0)))
+colnames(bin.w) <- gsub('.WScore', '', colnames(bin.w))
+bin.w <- bin.w[, stage.order]
+
+# a is main staging system described in text
+# b is alternative system that pops up in senstivity analysis, with extra precuneus stage
+# NS is replaced with `999` to keep a consistent type
+oasis <- data.frame(a = assign.stages(bin.w, stage.order, c(1, 2, 2, 2, 3, 3, 4, 4), p='any', atypical = 999),
+                    b = assign.stages(bin.w, stage.order, c(1, 2, 2, 3, 4, 4, 5, 5), p='any', atypical = 999))
+oasis.nonzero <- oasis %>%
+  filter(a != 0,
+         b != 0)
+
+print(sprintf('ARI for two staging systems in OASIS: %s', adjustedRandIndex(oasis$a, oasis$b)))
+print(sprintf('Omitting stage 0: %s', adjustedRandIndex(oasis.nonzero$a, oasis.nonzero$b)))
 
 # ------- alternative plot ---------------
 
