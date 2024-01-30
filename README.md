@@ -8,7 +8,7 @@ This repository contains public code for Tom's project (applying non-negative ma
 
 0. Make sure you have installed the [required software](#requirements).
 1. Download this repository (either with git or GitHub).
-2. [Download and supply the necessary data from ADNI & OASIS3](#downloading-raw-data)
+2. [Download and supply the necessary data from ADNI &amp; OASIS3](#downloading-raw-data)
 3. Start a new terminal in your copy of the download repository.
 
 ## Usage
@@ -70,47 +70,43 @@ This repository does not include data from ADNI/OASIS which require approval to 
 
 #### Amyloid PUP results
 
-- https://central.xnat.org/ > Browse > My Projects > OASIS3 > Add Tab > PUPs > Options > Edit Columns > Add column "PET_fSUVR_rsf_TOT_CORTMEAN" > Options > Spreadsheet
+- https://central.xnat.org/ > Browse > My Projects > OASIS3 > Add Tab > PUPs > Options > Edit Columns > Add column all columns matching "PET_fSUVR_..._CTX\_...", and the column "PET_fSUVR_rsf_TOT_CORTMEAN" > Options > Spreadsheet
 - **RENAME THIS FILE:** `oasis_amyloid.csv`
 
 #### Flortaucipir PUP results
 
 - https://central.xnat.org/ > Browse > My Projects > OASIS3_AV1451 > Add Tab > PUPs > Options > Edit Columns > Add all columns containing "fSUVR" (the ones containing "rsf" are not needed, but can be included) > Options > Spreadsheet
-
 - **RENAME THIS FILE:** `oasis_flortaucipir.csv`
 
 #### FreeSurfer results
 
-- https://central.xnat.org/ > Browse > My Projects > OASIS3 > Add Tab > FreeSurfers > Options > Edit Columns > Add all columns matching `"lh_..._volume"` or  `"rh_..._volume"`> Options > Spreadsheet
-
+- https://central.xnat.org/ > Browse > My Projects > OASIS3 > Add Tab > FreeSurfers > Options > Edit Columns > Add all columns matching `"Left-..._volume"`, `"Right-..._volume"`,   `"lh_..._volume" `, or  `"rh_..._volume"`> Options > Spreadsheet
 - **RENAME THIS FILE:** `oasis_freesurfer.csv`
 
 #### OASIS3 Data Files
 
-  - https://central.xnat.org/ > Browse > My Projects > OASIS3 > On the "Subjects" tab, click "0AS_data_files" > Click "MR Session" next to "OASIS3_data_files" > Select all entries ("demo through DUT") > Bulk Actions: Download.
-  - Unzip the downloaded folder, and place it in the `rawdata` folder.  This folder should be called "OASIS3_data_files" (it should not have to be renamed).
+- https://central.xnat.org/ > Browse > My Projects > OASIS3 > On the "Subjects" tab, click "0AS_data_files" > Click "MR Session" next to "OASIS3_data_files" > Select all entries ("demo through DUT") > Bulk Actions: Download.
+- Unzip the downloaded folder, and place it in the `rawdata` folder.  This folder should be called "OASIS3_data_files" (it should not have to be renamed).
 
 ## Troubleshooting
 
 Please log any issues for trouble running or reproducing analyses.  Before doing so, note:
 
 - Make sure you have the required software and packages installed and available.
-
 - Make sure you have added the required data from ADNI & OASIS3
-
 - Some (hopefully small) deviation in results is expected.  This could be because:
+
   - There is a random process that is not seeded.  I tried to have most random functions seeded, but I may have missed something.
-  
   - *The data provided by ADNI or OASIS have been updated*.  This should not be an issue for OASIS-3 which has a stable release, but may be an issue for the ADNI.  The ADNIMERGE R package is not meaningfully versioned, and can only be compared based on the date of download (the version I originally used is from November, 2022).  I have included a list of the subjects I used in the `subject_lists` folder, which is used to filter the subjects going into the main subject tables being created.   However, this will not account for other assessments which are linked to these subjects (e.g., CDR scores, amyloid imaging, etc.)
-  
+
 ## Figure table
 
 These tables document all the figures/tables produced for the text, and the specific folders containing the scripts that produce them.  **Note that for the supplement, some outputs are produced in the figure folders for the main text!**
 
 ### Main text
 
-| Title    | Description                            | Folder          |
-| -------- | -------------------------------------- | --------------- |
+| Title    | Description                            | Folder            |
+| -------- | -------------------------------------- | ----------------- |
 | Figure 1 | 8 PTC visualization                    | `figures/fig1`  |
 | Figure 2 | W-score & cross-sectional ordering     | `figures/fig2`  |
 | Figure 3 | Staging (cross-sectional)              | `figures/fig3`  |
@@ -121,8 +117,8 @@ These tables document all the figures/tables produced for the text, and the spec
 
 ### Supplement
 
-| Title     | Description                        | Folde                 |
-| --------- | ---------------------------------- | --------------------- |
+| Title     | Description                        | Folde                   |
+| --------- | ---------------------------------- | ----------------------- |
 | Figure S1 | Model selection                    | `suppplement/figS1`   |
 | Figure S2 | ADNI v OASIS component comparison  | `suppplement/figS2`   |
 | Figure S3 | Staging proportions with centiloid | `figures/fig3`        |
