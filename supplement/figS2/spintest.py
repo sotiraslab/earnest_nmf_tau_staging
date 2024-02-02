@@ -12,7 +12,7 @@ Created on Fri Dec  8 15:11:22 2023
 
 import abagen
 import numpy as np
-from neuromaps.nulls import vasa
+from neuromaps.nulls import alexander_bloch
 from neuromaps.stats import compare_images
 import nibabel as nib
 import pandas as pd
@@ -87,12 +87,12 @@ dkt_labels = dkt_labels[dkt_labels['structure'] == 'cortex']
 
 N_PERM = 10000
 
-rotated = vasa(df['ADNI'],
-               atlas='fsaverage',
-               density='10k',
-               n_perm=N_PERM,
-               seed=42,
-               parcellation=parcellation)
+rotated = alexander_bloch(df['ADNI'],
+                          atlas='fsaverage',
+                          density='10k',
+                          n_perm=N_PERM,
+                          seed=42,
+                          parcellation=parcellation)
 
 def adjusted_rand_index(x, y):
 
