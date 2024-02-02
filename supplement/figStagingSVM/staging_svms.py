@@ -42,10 +42,7 @@ oasis.loc[oasis['CDRTarget'] == '1.0', 'CDRTarget'] = '1.0+'
 
 # separate
 adni_ads = adni[adni['Group'] == 'TrainingBaseline'].copy()
-adni_all = adni[adni['Group'].isin(['TrainingBaseline', 'ControlBaseline'])].copy()
-
 oasis_ads = oasis[oasis['Group'] == 'TrainingSet'].copy()
-oasis_all = oasis[oasis['Group'].ne('Other')]
 
 #%% Helper functions
 
@@ -215,37 +212,27 @@ def compare_experiments(a, b):
 #%% Run models
 
 # staging only models
-ads_ptc = svm_experiment(adni_ads, oasis_ads, feature_cols=['PTCStage'])
-ads_braak= svm_experiment(adni_ads, oasis_ads, feature_cols=['BraakStage'])
-
-all_ptc = svm_experiment(adni_all, oasis_all, feature_cols=['PTCStage'])
-all_braak = svm_experiment(adni_all, oasis_all, feature_cols=['BraakStage'])
+svm_ptc = svm_experiment(adni_ads, oasis_ads, feature_cols=['PTCStage'])
+svm_braak= svm_experiment(adni_ads, oasis_ads, feature_cols=['BraakStage'])
 
 # other covariates included
-ads_ptc_cov = svm_experiment(adni_ads, oasis_ads, feature_cols=['PTCStage', 'Age', 'Gender', 'HasE4', 'Centiloid'])
-ads_braak_cov = svm_experiment(adni_ads, oasis_ads, feature_cols=['BraakStage', 'Age', 'Gender', 'HasE4', 'Centiloid'])
-
-all_ptc_cov = svm_experiment(adni_all, oasis_all, feature_cols=['PTCStage', 'Age', 'Gender', 'HasE4', 'Centiloid'])
-all_braak_cov = svm_experiment(adni_all, oasis_all, feature_cols=['BraakStage', 'Age', 'Gender', 'HasE4', 'Centiloid'])
+svm_ptc_cov = svm_experiment(adni_ads, oasis_ads, feature_cols=['PTCStage', 'Age', 'Gender', 'HasE4', 'Centiloid'])
+svm_braak_cov = svm_experiment(adni_ads, oasis_ads, feature_cols=['BraakStage', 'Age', 'Gender', 'HasE4', 'Centiloid'])
 
 #%% Collect results
 
 pairs = [
-    [ads_ptc, ads_braak],
-    [ads_ptc_cov, ads_braak_cov],
-    [all_ptc, all_braak],
-    [all_ptc_cov, all_braak_cov]
+    [svm_ptc, svm_braak],
+    [svm_ptc_cov, svm_braak_cov],
     ]
 
-disease = ['ADS', 'ADS', 'All', 'All']
-covariates = [False, True, False, True]
+covariates = [False, True]
 
 rows = []
 for i, pair in enumerate(pairs):
     adni_results, oasis_results = compare_experiments(*pair)
     cov = 'Age, Sex, APOE E4+, Centiloid' if covariates[i] else '-'
     rows.append({'Dataset': 'ADNI',
-                 'Disease': disease[i],
                  'Covariates': cov,
                  'PTC': f"{round(adni_results['mean_a'], 2)} ({(round(adni_results['std_a'], 3))})",
                  'Braak': f"{round(adni_results['mean_b'], 2)} ({(round(adni_results['std_b'], 3))})",
@@ -253,7 +240,6 @@ for i, pair in enumerate(pairs):
                  't-value': round(adni_results['t'], 3)})
 
     rows.append({'Dataset': 'OASIS',
-                 'Disease': disease[i],
                  'Covariates': cov,
                  'PTC': f"{round(oasis_results['mean_a'], 2)} ({(round(oasis_results['std_a'], 3))})",
                  'Braak': f"{round(oasis_results['mean_b'], 2)} ({(round(oasis_results['std_b'], 3))})",
@@ -261,4 +247,5 @@ for i, pair in enumerate(pairs):
                  't-value': round(oasis_results['t'], 3)})
 
 
-output = pd.DataFrame(rows).sort_values(['Covariates', 'Dataset'])
+output = pd.DataFrame(rows).sort_values(['Dataset'])
+output.to_csv('svm_results_formatted.csv', index=False)
