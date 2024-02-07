@@ -25,9 +25,6 @@ PATH_NMF_MAT_ADNI = '../../nmf/adni/results/mat/NumBases8.mat'
 PATH_NMF_MAT_OASIS = '../../nmf/oasis3/results/mat/NumBases8.mat'
 PATH_SCRIPTS = '../../scripts'
 
-# matched components are provided in the figS1 directory
-PATH_8PTC_MATCH = '../../supplement/figS1/adni_v_oasis_compare/matching/Match8.mat'
-
 # ----------
 # read inputs
 # ----------
