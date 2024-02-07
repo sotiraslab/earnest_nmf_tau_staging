@@ -93,7 +93,7 @@ def svm_experiment(adni_data, oasis_data, feature_cols,
             train_target = target_internal[train_index]
             test_target = target_internal[test_index]
 
-            model = LinearSVC(C=1, class_weight='balanced', dual='auto')
+            model = LinearSVC(C=1, class_weight='balanced', dual=False)
             model.fit(train_X, train_target)
             preds = model.predict(test_X)
             score = metric(test_target, preds)
