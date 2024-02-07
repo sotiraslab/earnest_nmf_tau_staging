@@ -118,6 +118,55 @@ stage.df <- data.frame(Region=names(stage.order),
 path.out <- '../../derivatives/adni/wscore_stage_order.csv'
 write.csv(stage.df, path.out)
 
+# save for oasis, later
+adni.stage.order <- stage.order
+
+# Save ADNI model parameters ----------
+
+for (i in seq_along(stage.order)) {
+  comp <- names(stage.order)[[i]]
+  w.output <- w.adni[[comp]]
+  models <- w.output$models
+  residuals <- w.output$residuals
+  parameters <- sapply(models, coef)
+  
+  to.save <- data.frame(Intercept = parameters['(Intercept)',],
+                        Age = parameters['Age', ],
+                        GenderMale = parameters['GenderMale', ],
+                        Residual = residuals)
+  name <- paste('PTC', i, str_replace(comp, 'Cmp.', ''), sep='')
+  save.path <- sprintf('../../apply_ptc_staging/wscores/adni/%s.csv', name)
+  write.csv(to.save, save.path, quote = F, na = '', row.names = F)
+}
+
+# # from matrix multiplication
+# observed.uptake <- adni$Cmp.Orbitofrontal
+# observed.predictors <- adni[, c('Age', 'Gender')]
+# observed.predictors$Gender <- ifelse(observed.predictors$Gender == 'Male', 1, 0)
+# 
+# observed.mat <- matrix(NA, nrow=nrow(observed.predictors), ncol=3)
+# observed.mat[, 1] = 1.
+# observed.mat[, 2] = observed.predictors$Age
+# observed.mat[, 3] = observed.predictors$Gender
+# 
+# estimated <- observed.mat %*% parameters
+# residual <- observed.uptake - estimated
+# relative.residual <- t(t(residual) / residuals)
+# w.score <- rowMeans(relative.residual)
+# 
+# # from lm
+# lm.estimate <- matrix(data=NA, nrow=1450, ncol=200)
+# lm.residual <- matrix(data=NA, nrow=1450, ncol=200)
+# lm.relative.residual <- matrix(data=NA, nrow=1450, ncol=200)
+# 
+# for (i in 1:200) {
+#   wmodel <- w.adni$Cmp.Orbitofrontal$models[[i]]
+#   lm.estimate[, i] <- predict(wmodel, adni)
+#   lm.residual[, i] <- observed.uptake - predict(wmodel, adni)
+#   lm.relative.residual[, i] <- (observed.uptake - predict(wmodel, adni)) / w.adni$Cmp.Orbitofrontal$residuals[i]
+# }
+
+
 # === OASIS3 =====
 
 oasis <- read.csv(PATH.OASIS.DATA) %>%
@@ -212,4 +261,22 @@ stage.df <- data.frame(Region=names(stage.order),
 
 path.out <- '../../derivatives/oasis3/wscore_stage_order.csv'
 write.csv(stage.df, path.out)
+
+# Save ADNI model parameters ----------
+
+for (i in seq_along(adni.stage.order)) {
+  comp <- names(adni.stage.order)[[i]]
+  w.output <- w.oasis[[comp]]
+  models <- w.output$models
+  residuals <- w.output$residuals
+  parameters <- sapply(models, coef)
+  
+  to.save <- data.frame(Intercept = parameters['(Intercept)',],
+                        Age = parameters['Age', ],
+                        GenderMale = parameters['GenderMale', ],
+                        Residual = residuals)
+  name <- paste('PTC', i, str_replace(comp, 'Cmp.', ''), sep='')
+  save.path <- sprintf('../../apply_ptc_staging/wscores/oasis/%s.csv', name)
+  write.csv(to.save, save.path, quote = F, na = '', row.names = F)
+}
 
