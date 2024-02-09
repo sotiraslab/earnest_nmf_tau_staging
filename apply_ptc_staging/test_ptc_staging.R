@@ -59,3 +59,8 @@ print(colSums(oasis.positivity))
 
 print('OASIS stages:')
 print(table(oasis.stages))
+
+# Scratch for the readme -----
+
+path <- '../derivatives/adni/main_data.csv'
+df <- read.csv(adni)
