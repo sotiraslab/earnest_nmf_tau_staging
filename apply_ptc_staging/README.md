@@ -29,8 +29,6 @@ df <- read.csv(path)
 df <- df[df$Group == 'TrainingBaseline', ]
 ```
 
-
-
 ### Calculating uptakes in PTCs
 
 `ptc.uptake()` can be used to calculate uptakes in each PTC.  This is done by simply multiplying the PTC matrix (normalized W from the NMF outputs) with a matrix containing the regional tau uptake in each FreeSurfer gray matter region.
@@ -50,7 +48,7 @@ The last line gives you a dataframe with the tau uptake (SUVR) in each PTC:
 ```R
 > colnames(tau.uptakes)
 [1] "MedialTemporal"        "RightParietalTemporal" "LeftParietalTemporal" 
-[4] "Precuneus"             "Occipital"             "LateralFrontal"       
+[4] "Precuneus"             "Occipital"             "LateralFrontal"     
 [7] "Sensorimotor"          "Orbitofrontal"
 
 > dim(tau.uptakes)
@@ -84,9 +82,6 @@ The above call generates binary assessments of pathology in each PTC.  This is t
 ```R
 > dim(tau.wscores)
 [1] 418   8
-
-> unname(tau.wscores[1, ])              
-1 0 0 0 0 0 0 0 0
 
 > colSums(tau.wscores)
        MedialTemporal  LeftParietalTemporal RightParietalTemporal 
@@ -133,4 +128,3 @@ All the above steps have been stitched into one function, which outputs a list c
 ```R
 > output <- ptc.staging.pipeline(df, tau.roi.columns = rois)
 ```
-
