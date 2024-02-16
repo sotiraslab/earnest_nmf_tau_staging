@@ -11,7 +11,7 @@ This repository contains public code for Tom's project (applying non-negative ma
 2. [Download and supply the necessary data from ADNI &amp; OASIS3](#downloading-raw-data)
 3. Start a new terminal in your copy of the download repository.
 
-## Usage
+## Reproducing analyses
 
 Once you have completed the [setup](#setup) steps, you can try using some of the provided shell scripts to reproduce analyses & figures locally.
 
@@ -32,6 +32,10 @@ Note that the gene expression correlation results (Figure 6) take a relatively l
 #### Rerunning NMF
 
 The scripts above will not rerun NMF - [see the NMF folder README for information on how to do so](https://github.com/sotiraslab/nmf_tau/tree/main/nmf).
+
+## Applying staging to new data
+
+The staging system we describe can be applied to new tau-PET data.  [See here for steps and examples.](https://github.com/sotiraslab/earnest_nmf_tau_staging/tree/main/apply_ptc_staging)
 
 ## Requirements
 
