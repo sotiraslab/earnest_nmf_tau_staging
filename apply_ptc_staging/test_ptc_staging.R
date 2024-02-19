@@ -62,5 +62,28 @@ print(table(oasis.stages))
 
 # Scratch for the readme -----
 
+source('ptc_staging.R')
 path <- '../derivatives/adni/main_data.csv'
-df <- read.csv(adni)
+df <- read.csv(path)
+df <- df[df$Group == 'TrainingBaseline', ]
+
+all.columns <- colnames(df)
+rois <- all.columns[grepl('CTX_.*_SUVR', all.columns)]
+tau.uptakes <- ptc.uptake(df, tau.roi.columns = rois)
+
+# adding age & sex to the uptakes table
+tau.uptakes$Age <- df$Age
+tau.uptakes$Sex <- ifelse(df$Gender == 'Male', 1, 0)
+
+tau.wscores <- ptc.wscores(tau.uptakes,
+                           model = 'adni',
+                           cutoff = 2.5,
+                           age.column = 'Age',
+                           sex.column = 'Sex')
+
+tau.stages <- ptc.staging(tau.wscores)
+
+tau.uptakes <- ptc.uptake(df, tau.roi.columns = rois)
+my.binary <- as.data.frame(ifelse(tau.uptakes >= 1.20, 1, 0))
+my.stages <- ptc.staging(my.binary)
+table(my.stages)
