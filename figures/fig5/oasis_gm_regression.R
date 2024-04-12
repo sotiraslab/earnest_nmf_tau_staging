@@ -130,6 +130,7 @@ ggplot() +
   labs(fill='Pearson R')
 
 ggsave('oasis_gm_regression.png', width=8, height=8)
+ggsave('oasis_gm_regression.svg', width=8, height=8)
 
 # === Save stats ==========
 

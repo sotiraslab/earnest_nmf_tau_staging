@@ -103,6 +103,7 @@ cdr.colors = c('0.0'='white', '0.5'='#0072B2', '1.0+'='#CC79A7')
 stacked.barplot(df, 'PTCStage', 'CDR', colors=cdr.colors) +
   xlab('Stage')
 ggsave('oasis_cdr_bar.png', width=6, height=8) 
+ggsave('oasis_cdr_bar.svg', width=6, height=8) 
 data <- stacked.barplot(df, 'PTCStage', 'CDR', return.data = T)
 write.csv(data, 'oasis_cdr_bar.csv')
 
@@ -123,6 +124,7 @@ stacked.barplot(df, 'CentiloidBinned', 'PTCStage', colors=stage.colors) +
   xlab('Centiloid') + 
   guides(fill = guide_legend(title='Stage'))
 ggsave('oasis_centiloid_bar.png', width=6, height=8)
+ggsave('oasis_centiloid_bar.svg', width=6, height=8)
 data <- stacked.barplot(df, 'CentiloidBinned', 'PTCStage', return.data = T)
 write.csv(data, 'oasis_centiloid_bar.csv')
 
@@ -142,6 +144,7 @@ stacked.barplot(df, 'HasE4', 'PTCStage', levels=c(T, F), colors=stage.colors) +
   guides(fill = guide_legend(title='Stage')) + 
   scale_x_discrete(labels=c('E4-', 'E4+'))
 ggsave('oasis_apoe_bar.png', width=4, height=8)
+ggsave('oasis_apoe_bar.svg', width=4, height=8)
 data <- stacked.barplot(df, 'HasE4', 'PTCStage', return.data = T)
 write.csv(data, 'oasis_apoe_bar.csv')
 
@@ -242,6 +245,7 @@ ggplot(data = df, aes(x = PTCStage, y = PACC.Original, fill = PTCStage)) +
   ylab('PACC')
 
 ggsave('oasis_pacc_scatter.png', width=6, height=8)
+ggsave('oasis_pacc_scatter.svg', width=6, height=8)
 
 print(summary(anova))
 print(etaSquared(anova))

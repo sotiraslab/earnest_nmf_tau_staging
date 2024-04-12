@@ -12,6 +12,8 @@ figures/*/*.csv
 # remove figures created
 figures/*/*.png
 figures/*/*/*.png
+figures/*/*.svg
+figures/*/*/*.svg
 
 # remove table data
 tables/*/*.csv

@@ -51,6 +51,7 @@ ggplot(data=long.centiloid, aes(x=Centiloid, y=AvgSUVR, group=PTC, color=PTC, li
   scale_x_continuous(breaks=c(25, 50, 75, 100, 125, 150, 175, 200))
 
 ggsave(filename = 'centiloid_loadings_oasis.png', width=12, height=6)
+ggsave(filename = 'centiloid_loadings_oasis.svg', width=12, height=6)
 
 # === stats ========
 

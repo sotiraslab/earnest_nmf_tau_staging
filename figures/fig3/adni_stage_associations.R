@@ -107,6 +107,7 @@ stacked.barplot(df, 'PTCStage', 'CDRBinned', colors=cdr.colors) +
   xlab('Stage') +
   guides(fill=guide_legend(title='CDR'))
 ggsave('adni_cdr_bar.png', width=6, height=8)
+ggsave('adni_cdr_bar.svg', width=6, height=8)
 data <- stacked.barplot(df, 'PTCStage', 'CDRBinned', return.data = T)
 write.csv(data, 'adni_cdr_bar.csv')
 
@@ -128,6 +129,7 @@ stacked.barplot(df, 'CentiloidBinned', 'PTCStage', colors=stage.colors) +
   xlab('Centiloid') +
   guides(fill = guide_legend(title='Stage'))
 ggsave('adni_centiloid_bar.png', width=6, height=8) 
+ggsave('adni_centiloid_bar.svg', width=6, height=8) 
 data <- stacked.barplot(df, 'PTCStage', 'CentiloidBinned', return.data = T)
 write.csv(data, 'adni_centiloid_bar.csv')
 
@@ -147,6 +149,7 @@ stacked.barplot(df, 'HasE4', 'PTCStage', levels = c(T, F), colors=stage.colors) 
   guides(fill = guide_legend(title='Stage')) + 
   scale_x_discrete(labels=c('E4-', 'E4+'))
 ggsave('adni_apoe_bar.png', width=4, height=8)
+ggsave('adni_apoe_bar.svg', width=4, height=8)
 data <- stacked.barplot(df, 'HasE4', 'PTCStage', return.data = T)
 write.csv(data, 'adni_apoe_bar.csv')
 
@@ -247,6 +250,7 @@ ggplot(data = df, aes(x = PTCStage, y = PACC.ADNI, fill = PTCStage)) +
   ylab('PACC')
 
 ggsave('adni_pacc_scatter.png', width=6, height=8)
+ggsave('adni_pacc_scatter.svg', width=6, height=8)
 
 print(summary(anova))
 print(etaSquared(anova))

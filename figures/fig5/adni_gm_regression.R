@@ -122,6 +122,7 @@ ggplot() +
   labs(fill='Pearson R')
 
 ggsave('adni_gm_regression.png', width=8, height=8)
+ggsave('adni_gm_regression.svg', width=8, height=8)
 
 # === Save stats ==========
 

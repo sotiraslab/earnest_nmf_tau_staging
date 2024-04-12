@@ -115,6 +115,7 @@ ggplot(data = plot.data, aes(x = B, y = A, fill = plot.p)) +
   xlab('PTC')
 
 ggsave('adni_wscore_bootstrap.png', width = 8, height = 8)
+ggsave('adni_wscore_bootstrap.svg', width = 8, height = 8)
 
 # === Plot showing stages =========
 
@@ -171,3 +172,4 @@ ggplot() +
   xlab('PTC')
 
 ggsave('adni_wscore_bootstrap_stage_labeled.png', width = 8, height = 8)
+ggsave('adni_wscore_bootstrap_stage_labeled.svg', width = 8, height = 8)
