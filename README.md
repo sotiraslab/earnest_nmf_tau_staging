@@ -4,6 +4,10 @@ This repository contains public code for Tom's project (applying non-negative ma
 
 ![](img/ptc_figure.png)
 
+## Publication
+
+The manuscript associated with this repository is now published at Alzheimer's and Dementia: [**Data-driven decomposition and staging of flortaucipir uptake in Alzheimer's disease**](https://doi.org/10.1002/alz.13769).
+
 ## Setup
 
 0. Make sure you have installed the [required software](#requirements).
