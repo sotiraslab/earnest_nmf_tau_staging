@@ -1,3 +1,5 @@
+![image](https://github.com/user-attachments/assets/e1a6901c-f3cd-4d27-be15-cd856d387041)
+
 # Staging of tau pathology using NMF
 
 This repository contains public code for Tom's project (applying non-negative matrix factorization for staging of tau PET data).
